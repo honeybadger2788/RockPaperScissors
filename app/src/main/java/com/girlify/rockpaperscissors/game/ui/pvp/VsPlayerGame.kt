@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui
+package com.girlify.rockpaperscissors.game.ui.pvp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,17 +24,17 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.girlify.rockpaperscissors.R
-import com.girlify.rockpaperscissors.game.core.Options
-
+import com.girlify.rockpaperscissors.game.core.model.Options
+import com.girlify.rockpaperscissors.game.ui.pvc.GameViewModel
 
 @Composable
-fun GameScreen(gameViewModel: GameViewModel) {
+fun VsPlayerGame(vsPlayerViewModel: GameViewModel) {
     val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
-    val showAnimation: Boolean by gameViewModel.showAnimation.observeAsState(false)
-    val isEnable: Boolean by gameViewModel.isEnable.observeAsState(true)
-    val playerElection: String by gameViewModel.playerElection.observeAsState("")
-    val computerElection: String by gameViewModel.computerElection.observeAsState("")
-    val result: String by gameViewModel.result.observeAsState("")
+    val showAnimation: Boolean by vsPlayerViewModel.showAnimation.observeAsState(false)
+    val isEnable: Boolean by vsPlayerViewModel.isEnable.observeAsState(true)
+    val playerElection: String by vsPlayerViewModel.playerElection.observeAsState("")
+    val computerElection: String by vsPlayerViewModel.computerElection.observeAsState("")
+    val result: String by vsPlayerViewModel.result.observeAsState("")
 
     Column(
         modifier = Modifier
@@ -47,13 +47,13 @@ fun GameScreen(gameViewModel: GameViewModel) {
             LottieExample()
         }
 
-        Text("Elige tu jugada")
+        Text("Elige tu jugada PVP")
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             items(options) {
                 BotonJugada(it, isEnable ) {
-                    gameViewModel.onClick(it, options.random())
+                    vsPlayerViewModel.onClick(it, options.random())
                 }
             }
         }
@@ -65,7 +65,7 @@ fun GameScreen(gameViewModel: GameViewModel) {
             Text("Resultado: $result")
             Spacer(modifier = Modifier.height(16.dp))
             BotonReiniciar {
-                gameViewModel.onRestart()
+                vsPlayerViewModel.onRestart()
             }
         }
     }
@@ -95,8 +95,6 @@ fun LottieExample() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // LottieAnimation
-            // Pass the composition and the progress state
             val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.game))
             val progress by animateLottieCompositionAsState(
                 composition,
