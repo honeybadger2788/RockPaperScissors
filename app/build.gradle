@@ -58,6 +58,8 @@ dependencies {
     implementation 'androidx.compose.material3:material3'
     // Animation
     implementation 'com.airbnb.android:lottie-compose:4.0.0'
+    // LiveData
+    implementation 'androidx.compose.runtime:runtime-livedata:1.3.3'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

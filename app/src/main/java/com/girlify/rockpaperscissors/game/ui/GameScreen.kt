@@ -2,20 +2,18 @@ package com.girlify.rockpaperscissors.game.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,18 +25,16 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.girlify.rockpaperscissors.R
 import com.girlify.rockpaperscissors.game.core.Options
-import kotlinx.coroutines.delay
 
 
 @Composable
-fun GameScreen() {
-    val opciones = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
-
-    var eleccionJugador by remember { mutableStateOf("") }
-    var eleccionComputadora by remember { mutableStateOf("") }
-    var resultado by remember { mutableStateOf("") }
-    var buttonState by remember { mutableStateOf(true) }
-    var animationState by remember { mutableStateOf(false) }
+fun GameScreen(gameViewModel: GameViewModel) {
+    val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
+    val showAnimation: Boolean by gameViewModel.showAnimation.observeAsState(false)
+    val isEnable: Boolean by gameViewModel.isEnable.observeAsState(true)
+    val playerElection: String by gameViewModel.playerElection.observeAsState("")
+    val computerElection: String by gameViewModel.computerElection.observeAsState("")
+    val result: String by gameViewModel.result.observeAsState("")
 
     Column(
         modifier = Modifier
@@ -47,57 +43,29 @@ fun GameScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        LaunchedEffect(animationState) {
-            if (animationState) {
-                delay(3000)
-                animationState = false
-            }
-        }
-
-        if (animationState) {
+        if (showAnimation) {
             LottieExample()
         }
 
         Text("Elige tu jugada")
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row {
-            BotonJugada(Options.ROCK, buttonState ) {
-                animationState = true
-                eleccionJugador = Options.ROCK
-                eleccionComputadora = opciones.random()
-                resultado = jugar(eleccionJugador, eleccionComputadora)
-                buttonState = false
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            BotonJugada(Options.PAPER, buttonState) {
-                animationState = true
-                eleccionJugador = Options.PAPER
-                eleccionComputadora = opciones.random()
-                resultado = jugar(eleccionJugador, eleccionComputadora)
-                buttonState = false
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            BotonJugada(Options.SCISSORS, buttonState) {
-                animationState = true
-                eleccionJugador = Options.SCISSORS
-                eleccionComputadora = opciones.random()
-                resultado = jugar(eleccionJugador, eleccionComputadora)
-                buttonState = false
+        LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            items(options) {
+                BotonJugada(it, isEnable ) {
+                    gameViewModel.onClick(it, options.random())
+                }
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (resultado.isNotEmpty()) {
-            Text("Vos elegiste: $eleccionJugador")
-            Text("Computadora: $eleccionComputadora")
-            Text("Resultado: $resultado")
+        if (result.isNotEmpty()) {
+            Text("Vos elegiste: $playerElection")
+            Text("Computadora: $computerElection")
+            Text("Resultado: $result")
             Spacer(modifier = Modifier.height(16.dp))
             BotonReiniciar {
-                buttonState = true
-                eleccionJugador = ""
-                eleccionComputadora = ""
-                resultado = ""
+                gameViewModel.onRestart()
             }
         }
     }
@@ -115,16 +83,6 @@ fun BotonReiniciar(onClick: () -> Unit) {
 fun BotonJugada(s: String, buttonState: Boolean, onClick: () -> Unit) {
     Button(onClick = { onClick() }, enabled = buttonState) {
         Text(text = s)
-    }
-}
-
-fun jugar(jugador: String, computadora: String): String {
-    return when {
-        jugador == computadora -> "Empate"
-        jugador == Options.ROCK && computadora == Options.SCISSORS ||
-                jugador == Options.PAPER && computadora == Options.ROCK ||
-                jugador == Options.SCISSORS && computadora == Options.PAPER -> "Ganaste"
-        else -> "Perdiste"
     }
 }
 
