@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.core
+package com.girlify.rockpaperscissors.game.core.model
 
 object Options {
     const val ROCK = "Piedra"
