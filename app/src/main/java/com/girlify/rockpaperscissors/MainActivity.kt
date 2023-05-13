@@ -17,11 +17,12 @@ import com.girlify.rockpaperscissors.game.ui.home.HomeScreen
 import com.girlify.rockpaperscissors.game.ui.pvc.GameScreen
 import com.girlify.rockpaperscissors.game.ui.pvc.GameViewModel
 import com.girlify.rockpaperscissors.game.ui.pvp.VsPlayerGame
+import com.girlify.rockpaperscissors.game.ui.pvp.VsPlayerViewModel
 import com.girlify.rockpaperscissors.ui.theme.RockPaperScissorsTheme
 
 class MainActivity : ComponentActivity() {
     private val gameViewModel: GameViewModel by viewModels()
-    private val vsPlayerViewModel: GameViewModel by viewModels()
+    private val vsPlayerViewModel: VsPlayerViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

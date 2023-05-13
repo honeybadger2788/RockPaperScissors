@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "637575103783",
+    "project_id": "rockpaperscissors-7a2ae",
+    "storage_bucket": "rockpaperscissors-7a2ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637575103783:android:65be8b02e2d564a9d45502",
+        "android_client_info": {
+          "package_name": "com.girlify.rockpaperscissors"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "637575103783-gl10bgunv0kap8rdfln7lfal2tfkng1b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFZCTSAJ55GrXjp2-OxJeILNUFddvSx8A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "637575103783-gl10bgunv0kap8rdfln7lfal2tfkng1b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
