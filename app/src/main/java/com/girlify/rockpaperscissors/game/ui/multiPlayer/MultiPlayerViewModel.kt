@@ -1,16 +1,18 @@
-package com.girlify.rockpaperscissors.game.ui.pvp
+package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.girlify.rockpaperscissors.game.core.model.Options
 import com.girlify.rockpaperscissors.game.data.network.FirebaseClient
+import com.girlify.rockpaperscissors.game.data.response.GameModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class VsPlayerViewModel: ViewModel() {
+class MultiPlayerViewModel: ViewModel() {
 
     private val repository = FirebaseClient()
 
@@ -26,8 +28,8 @@ class VsPlayerViewModel: ViewModel() {
     private val _playerElection = MutableLiveData<String>()
     val playerElection: LiveData<String> = _playerElection
 
-    private val _computerElection = MutableLiveData<String>()
-    val computerElection: LiveData<String> = _computerElection
+    private val _opponentElection = MutableLiveData<String>()
+    val opponentElection: LiveData<String> = _opponentElection
 
     private val _result = MutableLiveData<String>()
     val result: LiveData<String> = _result
@@ -49,6 +51,7 @@ class VsPlayerViewModel: ViewModel() {
 
     init {
         generateRandomString()
+        _uiState.value = UiState.Success(GameModel())
     }
 
     fun onSendCode(gameId: String) {
@@ -60,26 +63,34 @@ class VsPlayerViewModel: ViewModel() {
         }
     }
 
-    fun onCheck(code: String) {
+    fun onCheckCode(code: String) {
         viewModelScope.launch {
-            _isCodeButtonEnable.value = code.length >= 6
+            _code.value = code
+            _isCodeButtonEnable.value = code.length == 6
         }
     }
 
     fun onPlay(gameId: String, player: Int, playerElection: String) {
         viewModelScope.launch {
-            _showAnimation.value = true
             _isEnable.value = false
             repository.makeMove(gameId,player,playerElection)
             _playerElection.value = playerElection
-            _showAnimation.value = false
+            repository.gameListener(gameId).collect{
+                if (it.opponentMove.isEmpty()){
+                    _showAnimation.value = true
+                } else {
+                    _opponentElection.value = it.opponentMove
+                    _showAnimation.value = false
+                    _result.value = play(playerElection, it.opponentMove)
+                }
+            }
         }
     }
 
     fun onRestart() {
         viewModelScope.launch {
             _playerElection.value = ""
-            _computerElection.value = ""
+            _opponentElection.value = ""
             _result.value = ""
             _isEnable.value = true
         }
@@ -94,13 +105,13 @@ class VsPlayerViewModel: ViewModel() {
             .joinToString("")
     }
 
-//    private fun play(player: String, computer: String): String {
-//        return when {
-//            player == computer -> Options.DRAW
-//            player == Options.ROCK && computer == Options.SCISSORS ||
-//                    player == Options.PAPER && computer == Options.ROCK ||
-//                    player == Options.SCISSORS && computer == Options.PAPER -> Options.WIN
-//            else -> Options.LOST
-//        }
-//    }
+    private fun play(player: String, opponent: String): String {
+        return when {
+            player == opponent -> Options.DRAW
+            player == Options.ROCK && opponent == Options.SCISSORS ||
+                    player == Options.PAPER && opponent == Options.ROCK ||
+                    player == Options.SCISSORS && opponent == Options.PAPER -> Options.WIN
+            else -> Options.LOST
+        }
+    }
 }

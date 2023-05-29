@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvp
+package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
 import com.girlify.rockpaperscissors.game.data.response.GameModel
 

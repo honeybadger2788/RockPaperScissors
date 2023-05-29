@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvp
+package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,22 +34,22 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VsPlayerGame(vsPlayerViewModel: VsPlayerViewModel) {
+fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel) {
     val uiState by produceState<UiState>(initialValue = UiState.Loading) {
-        vsPlayerViewModel.uiState.collect { value = it }
+        multiPlayerViewModel.uiState.collect { value = it }
     }
 
     val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
-    val showAnimation: Boolean by vsPlayerViewModel.showAnimation.observeAsState(false)
-    val showCode: Boolean by vsPlayerViewModel.showCode.observeAsState(true)
-    val isEnable: Boolean by vsPlayerViewModel.isEnable.observeAsState(false)
-    val isCodeButtonEnable: Boolean by vsPlayerViewModel.isCodeButtonEnable.observeAsState(false)
-    val playerElection: String by vsPlayerViewModel.playerElection.observeAsState("")
-    val computerElection: String by vsPlayerViewModel.computerElection.observeAsState("")
-    val result: String by vsPlayerViewModel.result.observeAsState("")
-    val gameId: String by vsPlayerViewModel.gameId.observeAsState("")
-    val code: String by vsPlayerViewModel.code.observeAsState("")
-    val player: Int by vsPlayerViewModel.player.observeAsState(1)
+    val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
+    val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
+    val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
+    val isCodeButtonEnable: Boolean by multiPlayerViewModel.isCodeButtonEnable.observeAsState(false)
+    val playerElection: String by multiPlayerViewModel.playerElection.observeAsState("")
+    val opponentElection: String by multiPlayerViewModel.opponentElection.observeAsState("")
+    val result: String by multiPlayerViewModel.result.observeAsState("")
+    val gameId: String by multiPlayerViewModel.gameId.observeAsState("")
+    val code: String by multiPlayerViewModel.code.observeAsState("")
+    val player: Int by multiPlayerViewModel.player.observeAsState(1)
 
 
     Column(
@@ -66,13 +66,13 @@ fun VsPlayerGame(vsPlayerViewModel: VsPlayerViewModel) {
             UiState.Error -> TODO()
             UiState.Loading -> CircularProgressIndicator()
             is UiState.Success -> {
-                Text("Elige tu jugada PVP")
+                Text("Elige tu jugada Multi Player")
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                     items(options) {
                         BotonJugada(it, isEnable ) {
-                            vsPlayerViewModel.onPlay(gameId,player,it)
+                            multiPlayerViewModel.onPlay(gameId,player,it)
                         }
                     }
                 }
@@ -85,20 +85,20 @@ fun VsPlayerGame(vsPlayerViewModel: VsPlayerViewModel) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("o ingresa el suyo")
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextField(value = code, onValueChange = { vsPlayerViewModel.onCheck(it) })
+                    TextField(value = code, onValueChange = { multiPlayerViewModel.onCheckCode(it) })
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { vsPlayerViewModel.onSendCode(code) }, enabled = isCodeButtonEnable) {
+                    Button(onClick = { multiPlayerViewModel.onSendCode(code) }, enabled = isCodeButtonEnable) {
                         Text(text = "Jugar")
                     }
                 }
 
                 if (result.isNotEmpty()) {
                     Text("Vos elegiste: $playerElection")
-                    Text("Computadora: $computerElection")
+                    Text("Tu amigo eligió: $opponentElection")
                     Text("Resultado: $result")
                     Spacer(modifier = Modifier.height(16.dp))
                     BotonReiniciar {
-                        vsPlayerViewModel.onRestart()
+                        multiPlayerViewModel.onRestart()
                     }
                 }
             }
@@ -134,6 +134,7 @@ fun LottieExample() {
                 composition,
                 iterations = LottieConstants.IterateForever
             )
+            Text(text = "Esperando jugada")
             LottieAnimation(
                 composition = composition,
                 progress = progress,

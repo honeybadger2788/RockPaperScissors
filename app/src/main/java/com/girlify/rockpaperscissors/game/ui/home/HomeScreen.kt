@@ -25,10 +25,10 @@ fun HomeScreen(navigateToPVC: () -> Unit, navigateToPVP: () -> Unit) {
         Text(text = "Elige el modo de juego")
         Spacer(modifier = Modifier.size(16.dp))
         Button(onClick = { navigateToPVC() }) {
-            Text(text = "Player Vs Computer")
+            Text(text = "Single Player")
         }
         Button(onClick = { navigateToPVP() }) {
-            Text(text = "Player Vs Player")
+            Text(text = "Multi Player")
         }
     }
 }

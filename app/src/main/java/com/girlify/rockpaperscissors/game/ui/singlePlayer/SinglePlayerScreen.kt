@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvc
+package com.girlify.rockpaperscissors.game.ui.singlePlayer
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,13 +28,13 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 
 
 @Composable
-fun GameScreen(gameViewModel: GameViewModel) {
+fun GameScreen(singlePlayerViewModel: SinglePlayerViewModel) {
     val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
-    val showAnimation: Boolean by gameViewModel.showAnimation.observeAsState(false)
-    val isEnable: Boolean by gameViewModel.isEnable.observeAsState(true)
-    val playerElection: String by gameViewModel.playerElection.observeAsState("")
-    val computerElection: String by gameViewModel.computerElection.observeAsState("")
-    val result: String by gameViewModel.result.observeAsState("")
+    val showAnimation: Boolean by singlePlayerViewModel.showAnimation.observeAsState(false)
+    val isEnable: Boolean by singlePlayerViewModel.isEnable.observeAsState(true)
+    val playerElection: String by singlePlayerViewModel.playerElection.observeAsState("")
+    val computerElection: String by singlePlayerViewModel.computerElection.observeAsState("")
+    val result: String by singlePlayerViewModel.result.observeAsState("")
 
     Column(
         modifier = Modifier
@@ -47,13 +47,13 @@ fun GameScreen(gameViewModel: GameViewModel) {
             LottieExample()
         }
 
-        Text("Elige tu jugada PVC")
+        Text("Elige tu jugada Single Player")
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             items(options) {
                 BotonJugada(it, isEnable ) {
-                    gameViewModel.onClick(it, options.random())
+                    singlePlayerViewModel.onClick(it, options.random())
                 }
             }
         }
@@ -65,7 +65,7 @@ fun GameScreen(gameViewModel: GameViewModel) {
             Text("Resultado: $result")
             Spacer(modifier = Modifier.height(16.dp))
             BotonReiniciar {
-                gameViewModel.onRestart()
+                singlePlayerViewModel.onRestart()
             }
         }
     }

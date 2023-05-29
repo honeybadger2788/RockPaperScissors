@@ -14,15 +14,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.girlify.rockpaperscissors.game.core.model.Routes
 import com.girlify.rockpaperscissors.game.ui.home.HomeScreen
-import com.girlify.rockpaperscissors.game.ui.pvc.GameScreen
-import com.girlify.rockpaperscissors.game.ui.pvc.GameViewModel
-import com.girlify.rockpaperscissors.game.ui.pvp.VsPlayerGame
-import com.girlify.rockpaperscissors.game.ui.pvp.VsPlayerViewModel
+import com.girlify.rockpaperscissors.game.ui.singlePlayer.GameScreen
+import com.girlify.rockpaperscissors.game.ui.singlePlayer.SinglePlayerViewModel
+import com.girlify.rockpaperscissors.game.ui.multiPlayer.VsPlayerGame
+import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerViewModel
 import com.girlify.rockpaperscissors.ui.theme.RockPaperScissorsTheme
 
 class MainActivity : ComponentActivity() {
-    private val gameViewModel: GameViewModel by viewModels()
-    private val vsPlayerViewModel: VsPlayerViewModel by viewModels()
+    private val singlePlayerViewModel: SinglePlayerViewModel by viewModels()
+    private val multiPlayerViewModel: MultiPlayerViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -41,22 +41,22 @@ class MainActivity : ComponentActivity() {
                         composable(Routes.Home.route) {
                             HomeScreen(
                                 {
-                                    navigationController.navigate(Routes.VersusComputer.route) {
+                                    navigationController.navigate(Routes.SinglePlayer.route) {
                                         popUpToId
                                     }
                                 },
                                 {
-                                    navigationController.navigate(Routes.VersusPlayer.route) {
+                                    navigationController.navigate(Routes.MultiPlayer.route) {
                                         popUpToId
                                     }
                                 }
                             )
                         }
-                        composable(Routes.VersusComputer.route) {
-                            GameScreen(gameViewModel)
+                        composable(Routes.SinglePlayer.route) {
+                            GameScreen(singlePlayerViewModel)
                         }
-                        composable(Routes.VersusPlayer.route) {
-                            VsPlayerGame(vsPlayerViewModel)
+                        composable(Routes.MultiPlayer.route) {
+                            VsPlayerGame(multiPlayerViewModel)
                         }
                     }
                 }
