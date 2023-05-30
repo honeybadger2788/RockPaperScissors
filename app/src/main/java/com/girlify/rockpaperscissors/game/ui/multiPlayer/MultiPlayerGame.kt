@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvp
+package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,10 +25,9 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.girlify.rockpaperscissors.R
 import com.girlify.rockpaperscissors.game.core.model.Options
-import com.girlify.rockpaperscissors.game.ui.pvc.GameViewModel
 
 @Composable
-fun VsPlayerGame(vsPlayerViewModel: GameViewModel) {
+fun VsPlayerGame(vsPlayerViewModel: MultiPlayerViewModel) {
     val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
     val showAnimation: Boolean by vsPlayerViewModel.showAnimation.observeAsState(false)
     val isEnable: Boolean by vsPlayerViewModel.isEnable.observeAsState(true)

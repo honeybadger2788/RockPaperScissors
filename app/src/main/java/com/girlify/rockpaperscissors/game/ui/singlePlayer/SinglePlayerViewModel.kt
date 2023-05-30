@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvp
+package com.girlify.rockpaperscissors.game.ui.singlePlayer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,9 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class VsPlayerViewModel: ViewModel() {
+class SinglePlayerViewModel: ViewModel() {
+    private val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
+
     private val _playerElection = MutableLiveData<String>()
     val playerElection: LiveData<String> = _playerElection
 
@@ -18,21 +20,22 @@ class VsPlayerViewModel: ViewModel() {
     private val _result = MutableLiveData<String>()
     val result: LiveData<String> = _result
 
-    private val _showAnimation = MutableLiveData<Boolean>()
-    val showAnimation: LiveData<Boolean> = _showAnimation
+    private val _showLoadingAnimation = MutableLiveData<Boolean>()
+    val showLoadingAnimation: LiveData<Boolean> = _showLoadingAnimation
+
 
     private val _isEnable = MutableLiveData<Boolean>()
     val isEnable: LiveData<Boolean> = _isEnable
 
-    fun onClick(player: String, computer: String) {
+    fun onClick(player: String) {
         viewModelScope.launch {
-            _showAnimation.value = true
+            _showLoadingAnimation.value = true
             _isEnable.value = false
             delay(3000)
             _playerElection.value = player
-            _computerElection.value = computer
-            _result.value = play(player, computer)
-            _showAnimation.value = false
+            //_computerElection.value = computer
+            _showLoadingAnimation.value = false
+            _result.value = play(player, options.random())
         }
     }
 
@@ -46,6 +49,7 @@ class VsPlayerViewModel: ViewModel() {
     }
 
     private fun play(player: String, computer: String): String {
+        _computerElection.value = computer
         return when {
             player == computer -> Options.DRAW
             player == Options.ROCK && computer == Options.SCISSORS ||
