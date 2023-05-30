@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvp
+package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,7 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class VsPlayerViewModel: ViewModel() {
+class MultiPlayerViewModel: ViewModel() {
     private val _playerElection = MutableLiveData<String>()
     val playerElection: LiveData<String> = _playerElection
 

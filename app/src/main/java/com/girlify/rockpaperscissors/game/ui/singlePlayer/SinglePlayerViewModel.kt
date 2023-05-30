@@ -1,4 +1,4 @@
-package com.girlify.rockpaperscissors.game.ui.pvc
+package com.girlify.rockpaperscissors.game.ui.singlePlayer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,7 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class GameViewModel: ViewModel() {
+class SinglePlayerViewModel: ViewModel() {
     private val _playerElection = MutableLiveData<String>()
     val playerElection: LiveData<String> = _playerElection
 
@@ -18,21 +18,22 @@ class GameViewModel: ViewModel() {
     private val _result = MutableLiveData<String>()
     val result: LiveData<String> = _result
 
-    private val _showAnimation = MutableLiveData<Boolean>()
-    val showAnimation: LiveData<Boolean> = _showAnimation
+    private val _showLoadingAnimation = MutableLiveData<Boolean>()
+    val showLoadingAnimation: LiveData<Boolean> = _showLoadingAnimation
+
 
     private val _isEnable = MutableLiveData<Boolean>()
     val isEnable: LiveData<Boolean> = _isEnable
 
     fun onClick(player: String, computer: String) {
         viewModelScope.launch {
-            _showAnimation.value = true
+            _showLoadingAnimation.value = true
             _isEnable.value = false
             delay(3000)
             _playerElection.value = player
             _computerElection.value = computer
+            _showLoadingAnimation.value = false
             _result.value = play(player, computer)
-            _showAnimation.value = false
         }
     }
 
