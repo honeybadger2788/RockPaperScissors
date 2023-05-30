@@ -9,6 +9,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SinglePlayerViewModel: ViewModel() {
+    private val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
+
     private val _playerElection = MutableLiveData<String>()
     val playerElection: LiveData<String> = _playerElection
 
@@ -25,15 +27,15 @@ class SinglePlayerViewModel: ViewModel() {
     private val _isEnable = MutableLiveData<Boolean>()
     val isEnable: LiveData<Boolean> = _isEnable
 
-    fun onClick(player: String, computer: String) {
+    fun onClick(player: String) {
         viewModelScope.launch {
             _showLoadingAnimation.value = true
             _isEnable.value = false
             delay(3000)
             _playerElection.value = player
-            _computerElection.value = computer
+            //_computerElection.value = computer
             _showLoadingAnimation.value = false
-            _result.value = play(player, computer)
+            _result.value = play(player, options.random())
         }
     }
 
@@ -47,6 +49,7 @@ class SinglePlayerViewModel: ViewModel() {
     }
 
     private fun play(player: String, computer: String): String {
+        _computerElection.value = computer
         return when {
             player == computer -> Options.DRAW
             player == Options.ROCK && computer == Options.SCISSORS ||

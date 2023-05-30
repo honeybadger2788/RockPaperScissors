@@ -21,7 +21,6 @@ import com.girlify.rockpaperscissors.game.ui.multiPlayer.VsPlayerGame
 import com.girlify.rockpaperscissors.ui.theme.RockPaperScissorsTheme
 
 class MainActivity : ComponentActivity() {
-    private val singlePlayerViewModel: SinglePlayerViewModel by viewModels()
     private val vsPlayerViewModel: MultiPlayerViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +52,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Routes.VersusComputer.route) {
-                            GameScreen(singlePlayerViewModel)
+                            GameScreen()
                         }
                         composable(Routes.VersusPlayer.route) {
                             VsPlayerGame(vsPlayerViewModel)
