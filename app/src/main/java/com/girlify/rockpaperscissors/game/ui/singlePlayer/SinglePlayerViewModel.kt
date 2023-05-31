@@ -23,7 +23,6 @@ class SinglePlayerViewModel: ViewModel() {
     private val _showLoadingAnimation = MutableLiveData<Boolean>()
     val showLoadingAnimation: LiveData<Boolean> = _showLoadingAnimation
 
-
     private val _isEnable = MutableLiveData<Boolean>()
     val isEnable: LiveData<Boolean> = _isEnable
 

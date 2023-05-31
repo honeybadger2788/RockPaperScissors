@@ -1,5 +1,6 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,11 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.produceState
@@ -45,13 +46,13 @@ fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
     val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
     val isCodeButtonEnable: Boolean by multiPlayerViewModel.isCodeButtonEnable.observeAsState(false)
-    val playerElection: String by multiPlayerViewModel.playerElection.observeAsState("")
-    val opponentElection: String by multiPlayerViewModel.opponentElection.observeAsState("")
+    /*val playerElection: String by multiPlayerViewModel.playerElection.observeAsState("")
+    val opponentElection: String by multiPlayerViewModel.opponentElection.observeAsState("")*/
     val result: String by multiPlayerViewModel.result.observeAsState("")
     val gameId: String by multiPlayerViewModel.gameId.observeAsState("")
     val code: String by multiPlayerViewModel.code.observeAsState("")
-    val player: Int by multiPlayerViewModel.player.observeAsState(1)
-
+    val player: Int by multiPlayerViewModel.player.observeAsState(0)
+    //val gameData by multiPlayerViewModel.gameData.collectAsState(null)
 
     Column(
         modifier = Modifier
@@ -65,20 +66,7 @@ fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
         }
         when(uiState){
             UiState.Error -> TODO()
-            UiState.Loading -> CircularProgressIndicator()
-            is UiState.Success -> {
-                Text("Elige tu jugada Multi Player")
-                Spacer(modifier = Modifier.height(16.dp))
-
-                LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    items(options) {
-                        BotonJugada(it, isEnable ) {
-                            multiPlayerViewModel.onPlay(gameId,player,it)
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-
+            UiState.Loading -> {
                 if (showCode) {
                     Text("Dile a tu amigo que ingrese este código")
                     Spacer(modifier = Modifier.height(8.dp))
@@ -92,10 +80,23 @@ fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
                         Text(text = "Jugar")
                     }
                 }
+            }
+            is UiState.Success -> {
+                Text("Elige tu jugada Multi Player")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                    items(options) {
+                        BotonJugada(it, isEnable ) {
+                            multiPlayerViewModel.onPlay(gameId,player,it)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
 
                 if (result.isNotEmpty()) {
-                    Text("Vos elegiste: $playerElection")
-                    Text("Tu amigo eligió: $opponentElection")
+                    Text("${(uiState as UiState.Success).game.player1}: ${(uiState as UiState.Success).game.player1Choice}")
+                    Text("${(uiState as UiState.Success).game.player2}: ${(uiState as UiState.Success).game.player2Choice}")
                     Text("Resultado: $result")
                     Spacer(modifier = Modifier.height(16.dp))
                     BotonReiniciar {

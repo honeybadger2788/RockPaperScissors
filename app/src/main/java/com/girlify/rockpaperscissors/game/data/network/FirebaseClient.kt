@@ -1,19 +1,58 @@
 package com.girlify.rockpaperscissors.game.data.network
 
+import android.util.Log
 import com.girlify.rockpaperscissors.game.data.response.GameModel
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.tasks.await
+
 
 class FirebaseClient {
-    private val db = Firebase.firestore
-    private val gameRef = db.collection("games")
+    private val db = Firebase.database.reference
+    private val gameRef = db.child("games")
 
-    fun gameListener(gameId: String): Flow<GameModel> = flow {
+    fun setGame(gameId: String, player1: String) {
+        val game = GameModel(player1)
+        gameRef.child(gameId).setValue(game)
+    }
+
+    fun gameListener(gameId: String): Flow<GameModel?> = flow {
+        var gameModel: GameModel?
+        gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                gameModel = dataSnapshot.getValue<GameModel>()!!
+                Log.i("NOE","Escuchando...")
+                Log.i("DATA", gameModel.toString())
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                Log.w("NOE", "loadPost:onCancelled", databaseError.toException())
+            }
+        })
+    }
+
+    fun updateGame(gameId: String, player2: String) {
+        gameRef.child(gameId).updateChildren(mapOf("player2" to player2))
+    }
+
+    fun makeMove(gameId: String, player: Int, playerMove: String) {
+        gameRef.child(gameId).updateChildren(
+            mapOf(
+                if (player == 1) "player1" to playerMove else "player2" to playerMove
+            )
+        )
+    }
+
+    fun deleteGame(gameId: String) {
+        gameRef.child(gameId).removeValue()
+    }
+    /*fun gameListener(gameId: String): Flow<GameModel> = flow {
         emit(getGame(gameId))
         while (true) {
             delay(1000) // Actualiza cada 1 segundo
@@ -24,19 +63,18 @@ class FirebaseClient {
     private suspend fun getGame(gameId: String): GameModel {
         val response = gameRef.document(gameId).get().await()
         val data = response.data
-        val playerMove = data?.get("playerMove") as? String ?: ""
-        val opponentMove = data?.get("opponentMove") as? String ?: ""
-        val result = data?.get("result") as? String ?: ""
+        val playerMove = data?.get("player1") as? String ?: ""
+        val opponentMove = data?.get("player2") as? String ?: ""
 
-        return GameModel(gameId, playerMove, opponentMove, result)
+        return GameModel(gameId, playerMove, opponentMove)
     }
 
     suspend fun makeMove(gameId: String, player: Int,playerMove: String) {
         gameRef.document(gameId).set(
             mapOf(
-                if (player == 1) "playerMove" to playerMove else "opponentMove" to playerMove
+                if (player == 1) "player1" to playerMove else "player2" to playerMove
             ),
             SetOptions.merge()
         ).await()
-    }
+    }*/
 }
