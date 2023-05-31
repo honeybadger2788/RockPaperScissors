@@ -14,15 +14,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.girlify.rockpaperscissors.game.core.model.Routes
 import com.girlify.rockpaperscissors.game.ui.home.HomeScreen
+import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerViewModel
 import com.girlify.rockpaperscissors.game.ui.singlePlayer.GameScreen
 import com.girlify.rockpaperscissors.game.ui.singlePlayer.SinglePlayerViewModel
 import com.girlify.rockpaperscissors.game.ui.multiPlayer.VsPlayerGame
-import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerViewModel
 import com.girlify.rockpaperscissors.ui.theme.RockPaperScissorsTheme
 
 class MainActivity : ComponentActivity() {
-    private val singlePlayerViewModel: SinglePlayerViewModel by viewModels()
-    private val multiPlayerViewModel: MultiPlayerViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -53,10 +51,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Routes.SinglePlayer.route) {
-                            GameScreen(singlePlayerViewModel)
+                            GameScreen()
                         }
                         composable(Routes.MultiPlayer.route) {
-                            VsPlayerGame(multiPlayerViewModel)
+                            VsPlayerGame()
                         }
                     }
                 }

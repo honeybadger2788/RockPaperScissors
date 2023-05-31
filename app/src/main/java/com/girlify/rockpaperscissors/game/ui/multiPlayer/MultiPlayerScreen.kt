@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -34,7 +35,7 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel) {
+fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
     val uiState by produceState<UiState>(initialValue = UiState.Loading) {
         multiPlayerViewModel.uiState.collect { value = it }
     }
