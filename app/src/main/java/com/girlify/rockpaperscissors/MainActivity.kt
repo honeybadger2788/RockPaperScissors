@@ -8,9 +8,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.girlify.rockpaperscissors.game.core.model.Routes
 import com.girlify.rockpaperscissors.game.ui.home.HomeScreen
 import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerScreen
@@ -41,7 +43,11 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 {
-                                    navigationController.navigate(Routes.MultiPlayer.route) {
+                                    navigationController.navigate(
+                                        Routes.MultiPlayer.createRoute(
+                                            username = it
+                                        )
+                                    ) {
                                         popUpToId
                                     }
                                 }
@@ -50,8 +56,15 @@ class MainActivity : ComponentActivity() {
                         composable(Routes.SinglePlayer.route) {
                             GameScreen()
                         }
-                        composable(Routes.MultiPlayer.route) {
-                            MultiPlayerScreen()
+                        composable(
+                            Routes.MultiPlayer.route,
+                            arguments = listOf(navArgument("username") {
+                                type = NavType.StringType
+                            })
+                        ) { backStackEntry ->
+                            MultiPlayerScreen(
+                                backStackEntry.arguments?.getString("username") ?: ""
+                            )
                         }
                     }
                 }

@@ -17,9 +17,8 @@ class FirebaseClient {
     private val db = Firebase.database.reference
     private val gameRef = db.child("games")
 
-    fun setGame(gameId: String, player1: String) {
-        val game = GameModel(player1)
-        gameRef.child(gameId).setValue(game)
+    fun setGame(gameId: String) {
+        gameRef.setValue(gameId)
     }
 
     fun gameListener(gameId: String): Flow<GameModel?>  {
@@ -38,8 +37,12 @@ class FirebaseClient {
         return gameDataFlow
     }
 
-    fun updateGame(gameId: String, player2: String) {
-        gameRef.child(gameId).updateChildren(mapOf("player2" to player2))
+    fun updateGame(gameId: String, player: Int,username: String) {
+        gameRef.child(gameId).updateChildren(
+            mapOf(
+                if (player == 1) "player1" to username else "player2" to username
+            )
+        )
     }
 
     fun makeMove(gameId: String, player: Int, playerMove: String) {

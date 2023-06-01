@@ -10,7 +10,6 @@ import com.girlify.rockpaperscissors.game.data.network.FirebaseClient
 import com.girlify.rockpaperscissors.game.data.response.GameModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -18,8 +17,6 @@ class MultiPlayerViewModel: ViewModel() {
 
     private val repository = FirebaseClient()
 
-    /*private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
-    val uiState: StateFlow<UiState> = _uiState*/
     private val _gameData= MutableStateFlow(GameModel())
     val gameData: StateFlow<GameModel?> = _gameData
 
@@ -28,12 +25,6 @@ class MultiPlayerViewModel: ViewModel() {
 
     private val _player = MutableLiveData<Int>()
     val player: LiveData<Int> = _player
-/*
-    private val _playerElection = MutableLiveData<String>()
-    val playerElection: LiveData<String> = _playerElection
-
-    private val _opponentElection = MutableLiveData<String>()
-    val opponentElection: LiveData<String> = _opponentElection*/
 
     private val _result = MutableLiveData<String>()
     val result: LiveData<String> = _result
@@ -58,9 +49,10 @@ class MultiPlayerViewModel: ViewModel() {
 
     init {
         val gameId = generateRandomString()
-        repository.setGame(gameId,"NOE") // No se ejecuta!!!
+        repository.setGame(gameId)
         _player.value = 1
         _gameId.value = gameId
+        Log.i("NOE", "Ejecutando init")
     }
 
     fun startGameListener(gameId: String){
@@ -73,7 +65,7 @@ class MultiPlayerViewModel: ViewModel() {
                         _gameData.value = it
                         if (it.player1Choice.isNotEmpty() && it.player2Choice.isNotEmpty()) {
                             _showAnimation.value = false
-                            _result.value = play(it.player1Choice,it.player2Choice)
+                            _result.value = play(it)
                         } else if (it.player1Choice.isEmpty() && it.player2Choice.isNotEmpty()){
                             _message.value = "Esperando jugada de Jugador 1..."
                         } else if (it.player2Choice.isEmpty() && it.player1Choice.isNotEmpty()){
@@ -89,13 +81,13 @@ class MultiPlayerViewModel: ViewModel() {
         }
     }
 
-    fun onSendCode(gameId: String) {
+    fun onSendCode(gameId: String, player: Int, username: String) {
         viewModelScope.launch {
             _gameId.value = gameId
-            _player.value = 2
+            _player.value = player
             _isEnable.value = true
             _showCode.value = false
-            repository.updateGame(gameId,"LALALA")
+            setPlayer(gameId,player,username)
         }
     }
 
@@ -114,6 +106,7 @@ class MultiPlayerViewModel: ViewModel() {
         }
     }
 
+    // TODO restart playersChoice
     fun onRestart() {
         viewModelScope.launch {
             _result.value = ""
@@ -129,13 +122,18 @@ class MultiPlayerViewModel: ViewModel() {
             .joinToString("")
     }
 
-    private fun play(player1: String, player2: String): String {
+    private fun play(gameModel: GameModel): String {
+        val (player1, player1Choice, player2, player2Choice) = gameModel
         return when {
-            player1 == player2 -> Options.DRAW
-            player1 == Options.ROCK && player2 == Options.SCISSORS ||
-                    player1 == Options.PAPER && player2 == Options.ROCK ||
-                    player1 == Options.SCISSORS && player2 == Options.PAPER -> Options.WIN
-            else -> Options.LOST
+            player1Choice == player2Choice -> Options.DRAW
+            player1Choice == Options.ROCK && player2Choice == Options.SCISSORS ||
+                    player1Choice == Options.PAPER && player2Choice == Options.ROCK ||
+                    player1Choice == Options.SCISSORS && player2Choice == Options.PAPER -> player1
+            else -> player2
         }
+    }
+
+    fun setPlayer(gameId: String, player: Int, username: String) {
+        repository.updateGame(gameId,player,username)
     }
 }

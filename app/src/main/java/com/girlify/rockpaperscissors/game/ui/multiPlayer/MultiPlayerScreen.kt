@@ -1,5 +1,6 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,24 +36,24 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MultiPlayerScreen(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
-    /*val uiState by produceState<UiState>(initialValue = UiState.Loading) {
-        multiPlayerViewModel.uiState.collect { value = it }
-    }*/
+fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
 
     val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
     val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
     val isCodeButtonEnable: Boolean by multiPlayerViewModel.isCodeButtonEnable.observeAsState(false)
-    /*val playerElection: String by multiPlayerViewModel.playerElection.observeAsState("")
-    val opponentElection: String by multiPlayerViewModel.opponentElection.observeAsState("")*/
     val result: String by multiPlayerViewModel.result.observeAsState("")
     val gameId: String by multiPlayerViewModel.gameId.observeAsState("")
     val code: String by multiPlayerViewModel.code.observeAsState("")
     val player: Int by multiPlayerViewModel.player.observeAsState(0)
     val gameData by multiPlayerViewModel.gameData.collectAsState(null)
     val message: String by multiPlayerViewModel.message.observeAsState("")
+
+    LaunchedEffect(Unit) {
+        multiPlayerViewModel.setPlayer(gameId,player,username)
+    }
+
 
     LaunchedEffect(gameId) {
         multiPlayerViewModel.startGameListener(gameId)
@@ -66,11 +67,11 @@ fun MultiPlayerScreen(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) 
         verticalArrangement = Arrangement.Center
     ) {
         if (showAnimation) {
+            Text(text = message)
             LottieExample()
         }
         Text("Elige tu jugada Multi Player")
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = message)
 
         LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             items(options) {
@@ -94,7 +95,7 @@ fun MultiPlayerScreen(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) 
                 maxLines = 1
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { multiPlayerViewModel.onSendCode(code) }, enabled = isCodeButtonEnable) {
+            Button(onClick = { multiPlayerViewModel.onSendCode(code, 2,username) }, enabled = isCodeButtonEnable) {
                 Text(text = "Jugar")
             }
         }
@@ -102,7 +103,13 @@ fun MultiPlayerScreen(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) 
         if (result.isNotEmpty()) {
             Text("${gameData?.player1}: ${gameData?.player1Choice}")
             Text("${gameData?.player2}: ${gameData?.player2Choice}")
-            Text("Resultado: $result")
+            Text("Resultado: ${
+                when(result){
+                    username -> Options.WIN
+                    Options.DRAW -> Options.DRAW
+                    else -> Options.LOST
+                }
+            }")
             Spacer(modifier = Modifier.height(16.dp))
             BotonReiniciar {
                 multiPlayerViewModel.onRestart()
