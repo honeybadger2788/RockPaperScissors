@@ -18,7 +18,7 @@ class FirebaseClient {
     private val gameRef = db.child("games")
 
     fun setGame(gameId: String) {
-        gameRef.setValue(gameId)
+        gameRef.child(gameId)
     }
 
     fun gameListener(gameId: String): Flow<GameModel?>  {
