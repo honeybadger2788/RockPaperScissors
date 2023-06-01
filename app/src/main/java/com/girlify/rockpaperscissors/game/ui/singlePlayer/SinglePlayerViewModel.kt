@@ -23,7 +23,6 @@ class SinglePlayerViewModel: ViewModel() {
     private val _showLoadingAnimation = MutableLiveData<Boolean>()
     val showLoadingAnimation: LiveData<Boolean> = _showLoadingAnimation
 
-
     private val _isEnable = MutableLiveData<Boolean>()
     val isEnable: LiveData<Boolean> = _isEnable
 
@@ -33,7 +32,6 @@ class SinglePlayerViewModel: ViewModel() {
             _isEnable.value = false
             delay(3000)
             _playerElection.value = player
-            //_computerElection.value = computer
             _showLoadingAnimation.value = false
             _result.value = play(player, options.random())
         }
