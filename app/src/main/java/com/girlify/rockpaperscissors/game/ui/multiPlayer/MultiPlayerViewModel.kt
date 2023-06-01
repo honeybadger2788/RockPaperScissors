@@ -65,6 +65,7 @@ class MultiPlayerViewModel: ViewModel() {
                         _gameData.value = it
                         if (it.player1Choice.isNotEmpty() && it.player2Choice.isNotEmpty()) {
                             _showAnimation.value = false
+                            _isEnable.value = false
                             _result.value = play(it)
                         } else if (it.player1Choice.isEmpty() && it.player2Choice.isNotEmpty()){
                             _message.value = "Esperando jugada de Jugador 1..."
@@ -72,10 +73,9 @@ class MultiPlayerViewModel: ViewModel() {
                             _message.value = "Esperando jugada de Jugador 2..."
                         } else {
                             _message.value = ""
+                            _result.value = ""
                         }
-                    } /*else {
-                        repository.deleteGame(gameId)
-                    }*/
+                    }
                 }
             }
         }
@@ -106,11 +106,11 @@ class MultiPlayerViewModel: ViewModel() {
         }
     }
 
-    // TODO restart playersChoice
-    fun onRestart() {
+    fun onRestart(gameId: String) {
         viewModelScope.launch {
             _result.value = ""
             _isEnable.value = true
+            repository.restartGame(gameId)
         }
     }
     private fun generateRandomString(): String {

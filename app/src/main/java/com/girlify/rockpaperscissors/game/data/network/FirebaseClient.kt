@@ -53,32 +53,12 @@ class FirebaseClient {
         )
     }
 
-    fun deleteGame(gameId: String) {
-        gameRef.child(gameId).removeValue()
-    }
-    /*fun gameListener(gameId: String): Flow<GameModel> = flow {
-        emit(getGame(gameId))
-        while (true) {
-            delay(1000) // Actualiza cada 1 segundo
-            emit(getGame(gameId))
-        }
-    }
-
-    private suspend fun getGame(gameId: String): GameModel {
-        val response = gameRef.document(gameId).get().await()
-        val data = response.data
-        val playerMove = data?.get("player1") as? String ?: ""
-        val opponentMove = data?.get("player2") as? String ?: ""
-
-        return GameModel(gameId, playerMove, opponentMove)
-    }
-
-    suspend fun makeMove(gameId: String, player: Int,playerMove: String) {
-        gameRef.document(gameId).set(
+    fun restartGame(gameId: String) {
+        gameRef.child(gameId).updateChildren(
             mapOf(
-                if (player == 1) "player1" to playerMove else "player2" to playerMove
-            ),
-            SetOptions.merge()
-        ).await()
-    }*/
+                "player1Choice" to "",
+                "player2Choice" to ""
+            )
+        )
+    }
 }
