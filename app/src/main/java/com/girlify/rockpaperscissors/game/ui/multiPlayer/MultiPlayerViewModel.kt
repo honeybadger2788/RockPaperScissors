@@ -18,10 +18,10 @@ class MultiPlayerViewModel: ViewModel() {
 
     private val repository = FirebaseClient()
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
-    val uiState: StateFlow<UiState> = _uiState
-    /*private val _gameData= MutableStateFlow(GameModel())
-    val gameData: StateFlow<GameModel?> = _gameData*/
+    /*private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
+    val uiState: StateFlow<UiState> = _uiState*/
+    private val _gameData= MutableStateFlow(GameModel())
+    val gameData: StateFlow<GameModel?> = _gameData
 
     private val _gameId = MutableLiveData<String>()
     val gameId: LiveData<String> = _gameId
@@ -53,27 +53,37 @@ class MultiPlayerViewModel: ViewModel() {
     private val _isCodeButtonEnable = MutableLiveData<Boolean>()
     val isCodeButtonEnable: LiveData<Boolean> = _isCodeButtonEnable
 
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String> = _message
+
     init {
         val gameId = generateRandomString()
-        repository.setGame(gameId,"NOE")
+        repository.setGame(gameId,"NOE") // No se ejecuta!!!
         _player.value = 1
-        /*generateRandomString()
-        _uiState.value = UiState.Success(GameModel())*/
-        gameListener(gameId)
-        Log.i("NOE", "EJECUTANDO INIT")
+        _gameId.value = gameId
     }
 
-    private fun gameListener(gameId: String){
+    fun startGameListener(gameId: String){
         viewModelScope.launch{
             repository.gameListener(gameId).collect{
                 if (it != null) {
                     if (it.player2.isNotEmpty()){
                         _isEnable.value = true
                         _showCode.value = false
-                        _uiState.value = UiState.Success(it)
-                    } else {
+                        _gameData.value = it
+                        if (it.player1Choice.isNotEmpty() && it.player2Choice.isNotEmpty()) {
+                            _showAnimation.value = false
+                            _result.value = play(it.player1Choice,it.player2Choice)
+                        } else if (it.player1Choice.isEmpty() && it.player2Choice.isNotEmpty()){
+                            _message.value = "Esperando jugada de Jugador 1..."
+                        } else if (it.player2Choice.isEmpty() && it.player1Choice.isNotEmpty()){
+                            _message.value = "Esperando jugada de Jugador 2..."
+                        } else {
+                            _message.value = ""
+                        }
+                    } /*else {
                         repository.deleteGame(gameId)
-                    }
+                    }*/
                 }
             }
         }
@@ -81,11 +91,11 @@ class MultiPlayerViewModel: ViewModel() {
 
     fun onSendCode(gameId: String) {
         viewModelScope.launch {
-            //repository.gameListener(gameId)
-            repository.updateGame(gameId,"LALALA")/*
-            _isEnable.value = true
-            _showCode.value = false*/
+            _gameId.value = gameId
             _player.value = 2
+            _isEnable.value = true
+            _showCode.value = false
+            repository.updateGame(gameId,"LALALA")
         }
     }
 
@@ -99,55 +109,32 @@ class MultiPlayerViewModel: ViewModel() {
     fun onPlay(gameId: String, player: Int, playerElection: String) {
         viewModelScope.launch {
             _isEnable.value = false
+            _showAnimation.value = true
             repository.makeMove(gameId,player,playerElection)
-            /*_playerElection.value = playerElection
-            repository.gameListener(gameId).collect{
-                if (it.opponentMove.isEmpty()){
-                    _showAnimation.value = true
-                } else {
-                    _opponentElection.value = it.opponentMove
-                    _showAnimation.value = false
-                    _result.value = play(playerElection, it.opponentMove)
-                }
-            }*/
         }
     }
 
     fun onRestart() {
         viewModelScope.launch {
-            /*_playerElection.value = ""
-            _opponentElection.value = ""*/
             _result.value = ""
             _isEnable.value = true
         }
     }
-
-    /*private fun generateRandomString() {
-        val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-        val random = Random.Default
-        _gameId.value = (1..6)
-            .map { random.nextInt(0, charPool.size) }
-            .map(charPool::get)
-            .joinToString("")
-    }*/
-
     private fun generateRandomString(): String {
         val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
         val random = Random.Default
-        val gameId = (1..6)
+        return (1..6)
             .map { random.nextInt(0, charPool.size) }
             .map(charPool::get)
             .joinToString("")
-        _gameId.value = gameId
-        return gameId
     }
 
-    private fun play(player: String, opponent: String): String {
+    private fun play(player1: String, player2: String): String {
         return when {
-            player == opponent -> Options.DRAW
-            player == Options.ROCK && opponent == Options.SCISSORS ||
-                    player == Options.PAPER && opponent == Options.ROCK ||
-                    player == Options.SCISSORS && opponent == Options.PAPER -> Options.WIN
+            player1 == player2 -> Options.DRAW
+            player1 == Options.ROCK && player2 == Options.SCISSORS ||
+                    player1 == Options.PAPER && player2 == Options.ROCK ||
+                    player1 == Options.SCISSORS && player2 == Options.PAPER -> Options.WIN
             else -> Options.LOST
         }
     }

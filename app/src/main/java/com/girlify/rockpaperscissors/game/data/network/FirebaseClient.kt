@@ -9,6 +9,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 
 
@@ -21,13 +22,12 @@ class FirebaseClient {
         gameRef.child(gameId).setValue(game)
     }
 
-    fun gameListener(gameId: String): Flow<GameModel?> = flow {
-        var gameModel: GameModel?
+    fun gameListener(gameId: String): Flow<GameModel?>  {
+        val gameDataFlow = MutableStateFlow<GameModel?>(null)
         gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                gameModel = dataSnapshot.getValue<GameModel>()!!
-                Log.i("NOE","Escuchando...")
-                Log.i("DATA", gameModel.toString())
+                val gameModel = dataSnapshot.getValue(GameModel::class.java)
+                gameDataFlow.value = gameModel
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -35,6 +35,7 @@ class FirebaseClient {
                 Log.w("NOE", "loadPost:onCancelled", databaseError.toException())
             }
         })
+        return gameDataFlow
     }
 
     fun updateGame(gameId: String, player2: String) {
@@ -44,7 +45,7 @@ class FirebaseClient {
     fun makeMove(gameId: String, player: Int, playerMove: String) {
         gameRef.child(gameId).updateChildren(
             mapOf(
-                if (player == 1) "player1" to playerMove else "player2" to playerMove
+                if (player == 1) "player1Choice" to playerMove else "player2Choice" to playerMove
             )
         )
     }

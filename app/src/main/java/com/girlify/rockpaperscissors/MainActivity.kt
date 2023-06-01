@@ -3,7 +3,6 @@ package com.girlify.rockpaperscissors
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,10 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.girlify.rockpaperscissors.game.core.model.Routes
 import com.girlify.rockpaperscissors.game.ui.home.HomeScreen
-import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerViewModel
+import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerScreen
 import com.girlify.rockpaperscissors.game.ui.singlePlayer.GameScreen
-import com.girlify.rockpaperscissors.game.ui.singlePlayer.SinglePlayerViewModel
-import com.girlify.rockpaperscissors.game.ui.multiPlayer.VsPlayerGame
 import com.girlify.rockpaperscissors.ui.theme.RockPaperScissorsTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,7 +51,7 @@ class MainActivity : ComponentActivity() {
                             GameScreen()
                         }
                         composable(Routes.MultiPlayer.route) {
-                            VsPlayerGame()
+                            MultiPlayerScreen()
                         }
                     }
                 }

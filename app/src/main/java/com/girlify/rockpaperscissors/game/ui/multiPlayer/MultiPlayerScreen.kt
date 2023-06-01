@@ -1,6 +1,5 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -36,10 +35,10 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
-    val uiState by produceState<UiState>(initialValue = UiState.Loading) {
+fun MultiPlayerScreen(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
+    /*val uiState by produceState<UiState>(initialValue = UiState.Loading) {
         multiPlayerViewModel.uiState.collect { value = it }
-    }
+    }*/
 
     val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
@@ -52,7 +51,12 @@ fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
     val gameId: String by multiPlayerViewModel.gameId.observeAsState("")
     val code: String by multiPlayerViewModel.code.observeAsState("")
     val player: Int by multiPlayerViewModel.player.observeAsState(0)
-    //val gameData by multiPlayerViewModel.gameData.collectAsState(null)
+    val gameData by multiPlayerViewModel.gameData.collectAsState(null)
+    val message: String by multiPlayerViewModel.message.observeAsState("")
+
+    LaunchedEffect(gameId) {
+        multiPlayerViewModel.startGameListener(gameId)
+    }
 
     Column(
         modifier = Modifier
@@ -64,45 +68,44 @@ fun VsPlayerGame(multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
         if (showAnimation) {
             LottieExample()
         }
-        when(uiState){
-            UiState.Error -> TODO()
-            UiState.Loading -> {
-                if (showCode) {
-                    Text("Dile a tu amigo que ingrese este código")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(gameId, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("o ingresa el suyo")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextField(value = code, onValueChange = { multiPlayerViewModel.onCheckCode(it) })
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { multiPlayerViewModel.onSendCode(code) }, enabled = isCodeButtonEnable) {
-                        Text(text = "Jugar")
-                    }
+        Text("Elige tu jugada Multi Player")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = message)
+
+        LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            items(options) {
+                BotonJugada(it, isEnable ) {
+                    multiPlayerViewModel.onPlay(gameId,player,it)
                 }
             }
-            is UiState.Success -> {
-                Text("Elige tu jugada Multi Player")
-                Spacer(modifier = Modifier.height(16.dp))
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        if (showCode) {
+            Text("Dile a tu amigo que ingrese este código")
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(gameId, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("o ingresa el suyo")
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = code,
+                onValueChange = { multiPlayerViewModel.onCheckCode(it) },
+                singleLine = true,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = { multiPlayerViewModel.onSendCode(code) }, enabled = isCodeButtonEnable) {
+                Text(text = "Jugar")
+            }
+        }
 
-                LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    items(options) {
-                        BotonJugada(it, isEnable ) {
-                            multiPlayerViewModel.onPlay(gameId,player,it)
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (result.isNotEmpty()) {
-                    Text("${(uiState as UiState.Success).game.player1}: ${(uiState as UiState.Success).game.player1Choice}")
-                    Text("${(uiState as UiState.Success).game.player2}: ${(uiState as UiState.Success).game.player2Choice}")
-                    Text("Resultado: $result")
-                    Spacer(modifier = Modifier.height(16.dp))
-                    BotonReiniciar {
-                        multiPlayerViewModel.onRestart()
-                    }
-                }
+        if (result.isNotEmpty()) {
+            Text("${gameData?.player1}: ${gameData?.player1Choice}")
+            Text("${gameData?.player2}: ${gameData?.player2Choice}")
+            Text("Resultado: $result")
+            Spacer(modifier = Modifier.height(16.dp))
+            BotonReiniciar {
+                multiPlayerViewModel.onRestart()
             }
         }
     }
