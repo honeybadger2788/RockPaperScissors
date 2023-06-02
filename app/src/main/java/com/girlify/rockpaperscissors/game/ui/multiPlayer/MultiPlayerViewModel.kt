@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.girlify.rockpaperscissors.game.core.model.Options
 import com.girlify.rockpaperscissors.game.data.network.FirebaseClient
 import com.girlify.rockpaperscissors.game.data.response.GameModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -47,6 +48,9 @@ class MultiPlayerViewModel: ViewModel() {
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String> = _error
+
     init {
         val gameId = generateRandomString()
         repository.setGame(gameId)
@@ -56,7 +60,7 @@ class MultiPlayerViewModel: ViewModel() {
     }
 
     fun startGameListener(gameId: String){
-        viewModelScope.launch{
+        viewModelScope.launch {
             repository.gameListener(gameId).collect{
                 if (it != null) {
                     if (it.player2.isNotEmpty()){
@@ -81,13 +85,18 @@ class MultiPlayerViewModel: ViewModel() {
         }
     }
 
-    fun onSendCode(gameId: String, player: Int, username: String) {
-        viewModelScope.launch {
-            _gameId.value = gameId
-            _player.value = player
-            _isEnable.value = true
-            _showCode.value = false
-            setPlayer(gameId,player,username)
+    fun onSendCode(gameId: String, code: String,player: Int, username: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (repository.getGame(code) && gameId != code) {
+                repository.deleteGame(gameId)
+                _gameId.value = code
+                _player.value = player
+                _isEnable.value = true
+                _showCode.value = false
+                setPlayer(code,player,username)
+            } else {
+                _error.value = "Error en el código ingresado"
+            }
         }
     }
 
@@ -99,7 +108,7 @@ class MultiPlayerViewModel: ViewModel() {
     }
 
     fun onPlay(gameId: String, player: Int, playerElection: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isEnable.value = false
             _showAnimation.value = true
             repository.makeMove(gameId,player,playerElection)
@@ -107,7 +116,7 @@ class MultiPlayerViewModel: ViewModel() {
     }
 
     fun onRestart(gameId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _result.value = ""
             _isEnable.value = true
             repository.restartGame(gameId)
@@ -134,6 +143,8 @@ class MultiPlayerViewModel: ViewModel() {
     }
 
     fun setPlayer(gameId: String, player: Int, username: String) {
-        repository.updateGame(gameId,player,username)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateGame(gameId,player,username)
+        }
     }
 }
