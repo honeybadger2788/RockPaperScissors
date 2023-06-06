@@ -49,7 +49,7 @@ fun HomeScreen(
             Text(text = "Multi Player")
         }
         if (showDialog){
-            DialogPlayerName(
+            DialogUsername(
                 { navigateToMultiPlayer(it) },
                 username,
                 isButtonEnable,
@@ -62,7 +62,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogPlayerName(
+fun DialogUsername(
     navigateToMultiPlayer: (String) -> Unit,
     username: String,
     isButtonEnable: Boolean,

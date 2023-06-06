@@ -8,16 +8,18 @@ import androidx.lifecycle.viewModelScope
 import com.girlify.rockpaperscissors.game.core.model.Options
 import com.girlify.rockpaperscissors.game.data.network.FirebaseClient
 import com.girlify.rockpaperscissors.game.data.response.GameModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
-class MultiPlayerViewModel: ViewModel() {
+class MultiPlayerViewModel : ViewModel() {
 
     private val repository = FirebaseClient()
 
-    private val _gameData= MutableStateFlow(GameModel())
+    private val _gameData = MutableStateFlow(GameModel())
     val gameData: StateFlow<GameModel?> = _gameData
 
     private val _gameId = MutableLiveData<String>()
@@ -47,6 +49,9 @@ class MultiPlayerViewModel: ViewModel() {
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String> = _error
+
     init {
         val gameId = generateRandomString()
         repository.setGame(gameId)
@@ -55,21 +60,21 @@ class MultiPlayerViewModel: ViewModel() {
         Log.i("NOE", "Ejecutando init")
     }
 
-    fun startGameListener(gameId: String){
-        viewModelScope.launch{
-            repository.gameListener(gameId).collect{
-                if (it != null) {
-                    if (it.player2.isNotEmpty()){
+    fun startGameListener(gameId: String) {
+        viewModelScope.launch {
+            repository.gameListener(gameId).collect { gameModel ->
+                if (gameModel != null) {
+                    if (gameModel.player2.isNotEmpty()) {
                         _isEnable.value = true
                         _showCode.value = false
-                        _gameData.value = it
-                        if (it.player1Choice.isNotEmpty() && it.player2Choice.isNotEmpty()) {
+                        _gameData.value = gameModel
+                        if (gameModel.player1Choice.isNotEmpty() && gameModel.player2Choice.isNotEmpty()) {
                             _showAnimation.value = false
                             _isEnable.value = false
-                            _result.value = play(it)
-                        } else if (it.player1Choice.isEmpty() && it.player2Choice.isNotEmpty()){
+                            _result.value = play(gameModel)
+                        } else if (gameModel.player1Choice.isEmpty() && gameModel.player2Choice.isNotEmpty()) {
                             _message.value = "Esperando jugada de Jugador 1..."
-                        } else if (it.player2Choice.isEmpty() && it.player1Choice.isNotEmpty()){
+                        } else if (gameModel.player2Choice.isEmpty() && gameModel.player1Choice.isNotEmpty()) {
                             _message.value = "Esperando jugada de Jugador 2..."
                         } else {
                             _message.value = ""
@@ -81,28 +86,36 @@ class MultiPlayerViewModel: ViewModel() {
         }
     }
 
-    fun onSendCode(gameId: String, player: Int, username: String) {
+    fun onSendCode(gameId: String, code: String, player: Int, username: String) {
         viewModelScope.launch {
-            _gameId.value = gameId
-            _player.value = player
-            _isEnable.value = true
-            _showCode.value = false
-            setPlayer(gameId,player,username)
+            val isValidCode = withContext(Dispatchers.IO) {
+                repository.getGame(code)
+            }
+            if (isValidCode && gameId != code) {
+                repository.deleteGame(gameId)
+                _gameId.value = code
+                _player.value = player
+                _isEnable.value = true
+                _showCode.value = false
+                setPlayer(code, player, username)
+            } else {
+                _error.value = "Error en el código ingresado"
+            }
         }
     }
 
     fun onCheckCode(code: String) {
-        viewModelScope.launch {
-            _code.value = code
-            _isCodeButtonEnable.value = code.length == 6
-        }
+        _code.value = code
+        _isCodeButtonEnable.value = code.length == 6
     }
 
     fun onPlay(gameId: String, player: Int, playerElection: String) {
         viewModelScope.launch {
             _isEnable.value = false
             _showAnimation.value = true
-            repository.makeMove(gameId,player,playerElection)
+            withContext(Dispatchers.IO) {
+                repository.makeMove(gameId, player, playerElection)
+            }
         }
     }
 
@@ -110,16 +123,10 @@ class MultiPlayerViewModel: ViewModel() {
         viewModelScope.launch {
             _result.value = ""
             _isEnable.value = true
-            repository.restartGame(gameId)
+            withContext(Dispatchers.IO) {
+                repository.restartGame(gameId)
+            }
         }
-    }
-    private fun generateRandomString(): String {
-        val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-        val random = Random.Default
-        return (1..6)
-            .map { random.nextInt(0, charPool.size) }
-            .map(charPool::get)
-            .joinToString("")
     }
 
     private fun play(gameModel: GameModel): String {
@@ -134,6 +141,17 @@ class MultiPlayerViewModel: ViewModel() {
     }
 
     fun setPlayer(gameId: String, player: Int, username: String) {
-        repository.updateGame(gameId,player,username)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.setPlayer(gameId, player, username)
+        }
     }
+}
+
+fun generateRandomString(length: Int = 6): String {
+    val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+    val random = Random.Default
+    return (1..length)
+        .map { random.nextInt(0, charPool.size) }
+        .map(charPool::get)
+        .joinToString("")
 }

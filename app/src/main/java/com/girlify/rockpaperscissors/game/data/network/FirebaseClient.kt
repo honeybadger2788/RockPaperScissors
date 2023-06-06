@@ -6,11 +6,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 
 
 class FirebaseClient {
@@ -37,28 +36,36 @@ class FirebaseClient {
         return gameDataFlow
     }
 
-    fun updateGame(gameId: String, player: Int,username: String) {
+    suspend fun setPlayer(gameId: String, player: Int, username: String) {
         gameRef.child(gameId).updateChildren(
             mapOf(
                 if (player == 1) "player1" to username else "player2" to username
             )
-        )
+        ).await()
     }
 
-    fun makeMove(gameId: String, player: Int, playerMove: String) {
+    suspend fun makeMove(gameId: String, player: Int, playerMove: String) {
         gameRef.child(gameId).updateChildren(
             mapOf(
                 if (player == 1) "player1Choice" to playerMove else "player2Choice" to playerMove
             )
-        )
+        ).await()
     }
 
-    fun restartGame(gameId: String) {
+    suspend fun restartGame(gameId: String) {
         gameRef.child(gameId).updateChildren(
             mapOf(
                 "player1Choice" to "",
                 "player2Choice" to ""
             )
-        )
+        ).await()
+    }
+
+    suspend fun deleteGame(gameId: String) {
+        gameRef.child(gameId).removeValue().await()
+    }
+    suspend fun getGame(gameId: String): Boolean {
+        val response = gameRef.child(gameId).get().await()
+        return response.value != null
     }
 }
