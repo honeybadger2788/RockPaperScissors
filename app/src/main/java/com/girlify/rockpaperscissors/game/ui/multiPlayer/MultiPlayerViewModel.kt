@@ -133,7 +133,7 @@ class MultiPlayerViewModel @Inject constructor(
     private fun getResult(gameModel: GameModel): String {
         val (player1, player1Choice, player2, player2Choice) = gameModel
         return when {
-            player1Choice == player2Choice -> Options.DRAW
+            player1Choice == player2Choice -> Options.DRAW_MESSAGE
             player1Choice == Options.ROCK && player2Choice == Options.SCISSORS ||
                     player1Choice == Options.PAPER && player2Choice == Options.ROCK ||
                     player1Choice == Options.SCISSORS && player2Choice == Options.PAPER -> player1

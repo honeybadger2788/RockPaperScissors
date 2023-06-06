@@ -25,8 +25,8 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 @Composable
 fun ResultAnimation(result: String) {
     val res: Int = when(result){
-        Options.WIN -> R.raw.win
-        Options.LOST -> R.raw.lost
+        Options.WIN_MESSAGE -> R.raw.win
+        Options.LOST_MESSAGE -> R.raw.lost
         else -> R.raw.draw
     }
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(res))

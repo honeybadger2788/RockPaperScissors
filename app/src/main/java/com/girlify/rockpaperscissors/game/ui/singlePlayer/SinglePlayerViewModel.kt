@@ -52,11 +52,11 @@ class SinglePlayerViewModel @Inject constructor(): ViewModel() {
     private fun getResult(player: String, computer: String): String {
         _computerElection.value = computer
         return when {
-            player == computer -> Options.DRAW
+            player == computer -> Options.DRAW_MESSAGE
             player == Options.ROCK && computer == Options.SCISSORS ||
                     player == Options.PAPER && computer == Options.ROCK ||
-                    player == Options.SCISSORS && computer == Options.PAPER -> Options.WIN
-            else -> Options.LOST
+                    player == Options.SCISSORS && computer == Options.PAPER -> Options.WIN_MESSAGE
+            else -> Options.LOST_MESSAGE
         }
     }
 }
