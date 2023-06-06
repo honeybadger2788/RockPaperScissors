@@ -34,7 +34,6 @@ import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
 
 @Composable
 fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
-
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
     val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)

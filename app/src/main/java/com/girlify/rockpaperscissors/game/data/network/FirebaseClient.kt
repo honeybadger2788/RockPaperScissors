@@ -36,7 +36,7 @@ class FirebaseClient {
         return gameDataFlow
     }
 
-    suspend fun updateGame(gameId: String, player: Int, username: String) {
+    suspend fun setPlayer(gameId: String, player: Int, username: String) {
         gameRef.child(gameId).updateChildren(
             mapOf(
                 if (player == 1) "player1" to username else "player2" to username
