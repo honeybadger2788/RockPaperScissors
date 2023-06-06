@@ -1,23 +1,25 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.girlify.rockpaperscissors.game.core.model.Options
-import com.girlify.rockpaperscissors.game.data.network.FirebaseClient
+import com.girlify.rockpaperscissors.game.data.network.GameService
 import com.girlify.rockpaperscissors.game.data.response.GameModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 import kotlin.random.Random
 
-class MultiPlayerViewModel : ViewModel() {
-
-    private val repository = FirebaseClient()
+@HiltViewModel
+class MultiPlayerViewModel @Inject constructor(
+    private val repository: GameService
+) : ViewModel() {
 
     private val _gameData = MutableStateFlow(GameModel())
     val gameData: StateFlow<GameModel?> = _gameData
@@ -57,7 +59,6 @@ class MultiPlayerViewModel : ViewModel() {
         repository.setGame(gameId)
         _player.value = 1
         _gameId.value = gameId
-        Log.i("NOE", "Ejecutando init")
     }
 
     fun startGameListener(gameId: String) {
@@ -71,7 +72,7 @@ class MultiPlayerViewModel : ViewModel() {
                         if (gameModel.player1Choice.isNotEmpty() && gameModel.player2Choice.isNotEmpty()) {
                             _showAnimation.value = false
                             _isEnable.value = false
-                            _result.value = play(gameModel)
+                            _result.value = getResult(gameModel)
                         } else if (gameModel.player1Choice.isEmpty() && gameModel.player2Choice.isNotEmpty()) {
                             _message.value = "Esperando jugada de Jugador 1..."
                         } else if (gameModel.player2Choice.isEmpty() && gameModel.player1Choice.isNotEmpty()) {
@@ -129,7 +130,7 @@ class MultiPlayerViewModel : ViewModel() {
         }
     }
 
-    private fun play(gameModel: GameModel): String {
+    private fun getResult(gameModel: GameModel): String {
         val (player1, player1Choice, player2, player2Choice) = gameModel
         return when {
             player1Choice == player2Choice -> Options.DRAW

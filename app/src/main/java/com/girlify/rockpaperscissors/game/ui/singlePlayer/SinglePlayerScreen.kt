@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.girlify.rockpaperscissors.ui.composables.LoadingAnimation
 import com.girlify.rockpaperscissors.ui.composables.OptionsLayout
 import com.girlify.rockpaperscissors.ui.composables.RestartButton
@@ -23,7 +23,7 @@ import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
 
 @Preview
 @Composable
-fun GameScreen(singlePlayerViewModel: SinglePlayerViewModel = viewModel()) {
+fun GameScreen(singlePlayerViewModel: SinglePlayerViewModel = hiltViewModel()) {
     val showLoadingAnimation: Boolean by singlePlayerViewModel.showLoadingAnimation.observeAsState(
         false
     )

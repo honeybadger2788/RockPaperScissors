@@ -5,10 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.girlify.rockpaperscissors.game.core.model.Options
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SinglePlayerViewModel: ViewModel() {
+@HiltViewModel
+class SinglePlayerViewModel @Inject constructor(): ViewModel() {
     private val options = listOf(Options.ROCK, Options.PAPER, Options.SCISSORS)
 
     private val _playerElection = MutableLiveData<String>()
@@ -33,7 +36,7 @@ class SinglePlayerViewModel: ViewModel() {
             delay(3000)
             _playerElection.value = player
             _showLoadingAnimation.value = false
-            _result.value = play(player, options.random())
+            _result.value = getResult(player, options.random())
         }
     }
 
@@ -46,7 +49,7 @@ class SinglePlayerViewModel: ViewModel() {
         }
     }
 
-    private fun play(player: String, computer: String): String {
+    private fun getResult(player: String, computer: String): String {
         _computerElection.value = computer
         return when {
             player == computer -> Options.DRAW

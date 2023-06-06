@@ -21,13 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeScreen(
     navigateToSinglePlayer: () -> Unit,
     navigateToMultiPlayer: (String) -> Unit,
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val showDialog: Boolean by homeViewModel.showDialog.observeAsState(false)
     val isButtonEnable: Boolean by homeViewModel.isButtonEnable.observeAsState(false)

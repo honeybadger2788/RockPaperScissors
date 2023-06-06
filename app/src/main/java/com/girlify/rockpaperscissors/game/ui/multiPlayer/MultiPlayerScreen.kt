@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.girlify.rockpaperscissors.game.core.model.Options
 import com.girlify.rockpaperscissors.game.data.response.GameModel
 import com.girlify.rockpaperscissors.ui.composables.LoadingAnimation
@@ -33,7 +33,7 @@ import com.girlify.rockpaperscissors.ui.composables.RestartButton
 import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
 
 @Composable
-fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewModel = viewModel()) {
+fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
     val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
