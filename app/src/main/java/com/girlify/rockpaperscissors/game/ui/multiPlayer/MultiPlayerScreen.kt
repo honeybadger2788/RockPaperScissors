@@ -83,13 +83,8 @@ fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewMode
 
         if (result.isNotEmpty()) {
             gameData?.let {
-                val text = when(result){
-                    username -> Options.WIN_MESSAGE
-                    Options.DRAW_MESSAGE -> Options.DRAW_MESSAGE
-                    else -> Options.LOST_MESSAGE
-                }
                 ResultDialog(
-                    text,
+                    result,
                     it
                 ) {
                     multiPlayerViewModel.onRestart(gameId)
