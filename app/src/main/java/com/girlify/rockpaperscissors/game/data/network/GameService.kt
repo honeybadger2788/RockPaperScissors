@@ -71,11 +71,6 @@ class GameService @Inject constructor(
         return response.value != null
     }
 
-    fun removeListener(gameId: String) {
-        gameRef.child(gameId).removeEventListener(listener)
-        Log.i("NOE", "Remove listener...")
-    }
-
     suspend fun endGame(gameId: String) {
         gameRef.child(gameId).updateChildren(mapOf(
             "endGame" to true

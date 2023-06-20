@@ -54,9 +54,6 @@ class MultiPlayerViewModel @Inject constructor(
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
-    private val _navigateToHome = MutableLiveData<Boolean>()
-    val navigateToHome: LiveData<Boolean> = _navigateToHome
-
     private lateinit var username: String
 
     init {
@@ -89,29 +86,30 @@ class MultiPlayerViewModel @Inject constructor(
                             }
                         }
                     } else {
-                        _result.value = ""
-                        _gameId.value = ""
-                        _isEnable.value = false
-                        _showAnimation.value = false
-                        _gameData.value = GameModel()
-                        _player.value = 0
-                        _error.value = ""
-                        _message.value = ""
-                        _code.value = ""
-                        _showCode.value = true
-                        _isCodeButtonEnable.value = false
-                        //_navigateToHome.value = true
+                        resetStates()
                     }
                 }
             }
         }
     }
 
+    private fun resetStates() {
+        _result.value = ""
+        _gameId.value = ""
+        _isEnable.value = false
+        _showAnimation.value = false
+        _gameData.value = GameModel()
+        _player.value = 0
+        _error.value = ""
+        _message.value = ""
+        _code.value = ""
+        _showCode.value = true
+        _isCodeButtonEnable.value = false
+    }
+
     fun onSendCode(gameId: String, code: String, player: Int, username: String) {
         viewModelScope.launch {
-            val isValidCode = withContext(Dispatchers.IO) {
-                repository.getGame(code)
-            }
+            val isValidCode = repository.getGame(code)
             if (isValidCode && gameId != code) {
                 repository.deleteGame(gameId)
                 _gameId.value = code
@@ -134,9 +132,7 @@ class MultiPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             _isEnable.value = false
             _showAnimation.value = true
-            withContext(Dispatchers.IO) {
-                repository.makeMove(gameId, player, playerElection)
-            }
+            repository.makeMove(gameId, player, playerElection)
         }
     }
 
@@ -144,27 +140,14 @@ class MultiPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             _result.value = ""
             _isEnable.value = true
-            withContext(Dispatchers.IO) {
-                repository.restartGame(gameId)
-            }
+            repository.restartGame(gameId)
         }
     }
 
     fun onEndGame(gameId: String) {
         viewModelScope.launch {
-            //repository.removeListener(gameId)
             repository.endGame(gameId)
-            _result.value = ""
-            _gameId.value = ""
-            _isEnable.value = false
-            _showAnimation.value = false
-            _gameData.value = GameModel()
-            _player.value = 0
-            _error.value = ""
-            _message.value = ""
-            _code.value = ""
-            _showCode.value = true
-            _isCodeButtonEnable.value = false
+            resetStates()
         }
     }
 
@@ -186,7 +169,7 @@ class MultiPlayerViewModel @Inject constructor(
 
     fun setPlayer(gameId: String, player: Int, username: String) {
         this.username = username
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.setPlayer(gameId, player, username)
         }
     }
