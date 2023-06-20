@@ -14,6 +14,7 @@ class GameService @Inject constructor(
     firebaseClient: FirebaseClient
 ) {
     private val gameRef = firebaseClient.db.child("games")
+    private lateinit var listener: ValueEventListener
 
     fun setGame(gameId: String) {
         gameRef.child(gameId)
@@ -21,10 +22,11 @@ class GameService @Inject constructor(
 
     fun gameListener(gameId: String): Flow<GameModel?> {
         val gameDataFlow = MutableStateFlow<GameModel?>(null)
-        gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
+        listener = gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val gameModel = dataSnapshot.getValue(GameModel::class.java)
                 gameDataFlow.value = gameModel
+                Log.i("NOE", "Escuchando $gameId...")
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -67,5 +69,16 @@ class GameService @Inject constructor(
     suspend fun getGame(gameId: String): Boolean {
         val response = gameRef.child(gameId).get().await()
         return response.value != null
+    }
+
+    fun removeListener(gameId: String) {
+        gameRef.child(gameId).removeEventListener(listener)
+        Log.i("NOE", "Remove listener...")
+    }
+
+    suspend fun endGame(gameId: String) {
+        gameRef.child(gameId).updateChildren(mapOf(
+            "endGame" to true
+        )).await()
     }
 }

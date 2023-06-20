@@ -76,7 +76,10 @@ private fun MyNavigation(){
             })
         ) { backStackEntry ->
             MultiPlayerScreen(
-                backStackEntry.arguments?.getString("username") ?: ""
+                backStackEntry.arguments?.getString("username") ?: "",
+                { navigationController.navigate(Routes.Home.route) {
+                    popUpToId
+                } }
             )
         }
     }

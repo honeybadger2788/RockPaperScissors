@@ -54,6 +54,9 @@ class MultiPlayerViewModel @Inject constructor(
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+    private val _navigateToHome = MutableLiveData<Boolean>()
+    val navigateToHome: LiveData<Boolean> = _navigateToHome
+
     private lateinit var username: String
 
     init {
@@ -67,22 +70,37 @@ class MultiPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             repository.gameListener(gameId).collect { gameModel ->
                 if (gameModel != null) {
-                    if (gameModel.player2.isNotEmpty()) {
-                        _isEnable.value = true
-                        _showCode.value = false
-                        _gameData.value = gameModel
-                        if (gameModel.player1Choice.isNotEmpty() && gameModel.player2Choice.isNotEmpty()) {
-                            _showAnimation.value = false
-                            _isEnable.value = false
-                            _result.value = getResult(gameModel)
-                        } else if (gameModel.player1Choice.isEmpty() && gameModel.player2Choice.isNotEmpty()) {
-                            _message.value = "Esperando jugada de Jugador 1..."
-                        } else if (gameModel.player2Choice.isEmpty() && gameModel.player1Choice.isNotEmpty()) {
-                            _message.value = "Esperando jugada de Jugador 2..."
-                        } else {
-                            _message.value = ""
-                            _result.value = ""
+                    if (!gameModel.endGame) {
+                        if (gameModel.player2.isNotEmpty()) {
+                            _isEnable.value = true
+                            _showCode.value = false
+                            _gameData.value = gameModel
+                            if (gameModel.player1Choice.isNotEmpty() && gameModel.player2Choice.isNotEmpty()) {
+                                _showAnimation.value = false
+                                _isEnable.value = false
+                                _result.value = getResult(gameModel)
+                            } else if (gameModel.player1Choice.isEmpty() && gameModel.player2Choice.isNotEmpty()) {
+                                _message.value = "Esperando jugada de Jugador 1..."
+                            } else if (gameModel.player2Choice.isEmpty() && gameModel.player1Choice.isNotEmpty()) {
+                                _message.value = "Esperando jugada de Jugador 2..."
+                            } else {
+                                _message.value = ""
+                                _result.value = ""
+                            }
                         }
+                    } else {
+                        _result.value = ""
+                        _gameId.value = ""
+                        _isEnable.value = false
+                        _showAnimation.value = false
+                        _gameData.value = GameModel()
+                        _player.value = 0
+                        _error.value = ""
+                        _message.value = ""
+                        _code.value = ""
+                        _showCode.value = true
+                        _isCodeButtonEnable.value = false
+                        //_navigateToHome.value = true
                     }
                 }
             }
@@ -129,6 +147,24 @@ class MultiPlayerViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 repository.restartGame(gameId)
             }
+        }
+    }
+
+    fun onEndGame(gameId: String) {
+        viewModelScope.launch {
+            //repository.removeListener(gameId)
+            repository.endGame(gameId)
+            _result.value = ""
+            _gameId.value = ""
+            _isEnable.value = false
+            _showAnimation.value = false
+            _gameData.value = GameModel()
+            _player.value = 0
+            _error.value = ""
+            _message.value = ""
+            _code.value = ""
+            _showCode.value = true
+            _isCodeButtonEnable.value = false
         }
     }
 

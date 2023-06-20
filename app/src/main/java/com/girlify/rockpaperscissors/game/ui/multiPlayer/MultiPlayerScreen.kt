@@ -33,7 +33,7 @@ import com.girlify.rockpaperscissors.ui.composables.RestartButton
 import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
 
 @Composable
-fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
+fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
     val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
@@ -51,7 +51,11 @@ fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewMode
     }
 
     LaunchedEffect(gameId) {
-        multiPlayerViewModel.startGameListener(gameId)
+        if (gameId.isNotEmpty()){
+            multiPlayerViewModel.startGameListener(gameId)
+        } else {
+            goToHome()
+        }
     }
 
     Column(
@@ -85,10 +89,13 @@ fun MultiPlayerScreen(username: String,multiPlayerViewModel: MultiPlayerViewMode
             gameData?.let {
                 ResultDialog(
                     result,
-                    it
-                ) {
-                    multiPlayerViewModel.onRestart(gameId)
-                }
+                    it,
+                    { multiPlayerViewModel.onRestart(gameId) },
+                    {
+                        multiPlayerViewModel.onEndGame(gameId)
+                        goToHome()
+                    }
+                )
             }
         }
     }
@@ -139,7 +146,7 @@ fun CodeDialog(
 }
 
 @Composable
-fun ResultDialog(result: String, gameData: GameModel, restart: () -> Unit) {
+fun ResultDialog(result: String, gameData: GameModel, restart: () -> Unit, endGame: () -> Unit) {
     Dialog(onDismissRequest = { restart() }) {
         Column(
             Modifier
@@ -154,6 +161,9 @@ fun ResultDialog(result: String, gameData: GameModel, restart: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             RestartButton {
                 restart()
+            }
+            Button(onClick = { endGame() }) {
+                Text(text = "Finalizar juego")
             }
         }
     }
