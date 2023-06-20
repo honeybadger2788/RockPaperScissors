@@ -60,16 +60,27 @@ class MultiPlayerViewModel @Inject constructor(
 
     private val inactivityTimeout = 60000L // 60 segundos de inactividad
     private var lastInteractionTime: Long = 0L
+    private lateinit var inactivityHandler: Handler
+    private var inactivityRunnable: Runnable
 
     init {
         val gameId = generateRandomString()
         repository.setGame(gameId)
         _player.value = 1
         _gameId.value = gameId
+        viewModelScope.launch{
+            inactivityHandler = Handler(Looper.getMainLooper())
+        }
+        inactivityRunnable = Runnable {
+            checkInactivityTimeout()
+        }
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    private fun startHandler(){
+        inactivityHandler.postDelayed(inactivityRunnable, inactivityTimeout)
+    }
+
+    private fun stopHandler(){
         inactivityHandler.removeCallbacks(inactivityRunnable)
     }
 
@@ -79,6 +90,7 @@ class MultiPlayerViewModel @Inject constructor(
                 if (gameModel != null) {
                     if (!gameModel.endGame) {
                         lastInteractionTime = System.currentTimeMillis()
+                        stopHandler()
                         if (gameModel.player2.isNotEmpty()) {
                             _isEnable.value = true
                             _showCode.value = false
@@ -96,6 +108,7 @@ class MultiPlayerViewModel @Inject constructor(
                                 _result.value = ""
                             }
                         }
+                        startHandler()
                     } else {
                         if (gameModel.player2.isEmpty() || gameModel.player1Choice.isEmpty() || gameModel.player2Choice.isEmpty()) {
                             repository.deleteGame(gameId)
@@ -105,23 +118,12 @@ class MultiPlayerViewModel @Inject constructor(
                 }
             }
         }
-        inactivityHandler.postDelayed(inactivityRunnable, 1000) // Comenzar la verificación después de 1 segundo
-    }
-
-    private val inactivityHandler = Handler(Looper.getMainLooper())
-    private val inactivityRunnable = object : Runnable {
-        override fun run() {
-            checkInactivityTimeout()
-            inactivityHandler.postDelayed(this, 1000) // Comprobar cada segundo
-        }
     }
 
     private fun checkInactivityTimeout() {
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - lastInteractionTime >= inactivityTimeout) {
-            viewModelScope.launch {
-                _gameId.value?.let { repository.endGame(it) }
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            _gameId.value?.let { repository.endGame(it) }
+            Log.i("NOE","CHECK")
         }
     }
 
