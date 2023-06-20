@@ -1,5 +1,8 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,9 +20,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +39,8 @@ import com.girlify.rockpaperscissors.ui.composables.LoadingAnimation
 import com.girlify.rockpaperscissors.ui.composables.OptionsLayout
 import com.girlify.rockpaperscissors.ui.composables.RestartButton
 import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
@@ -56,6 +66,11 @@ fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewMod
         } else {
             goToHome()
         }
+    }
+
+    BackHandler {
+        multiPlayerViewModel.onEndGame(gameId)
+        goToHome()
     }
 
     Column(

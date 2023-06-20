@@ -14,7 +14,6 @@ class GameService @Inject constructor(
     firebaseClient: FirebaseClient
 ) {
     private val gameRef = firebaseClient.db.child("games")
-    private lateinit var listener: ValueEventListener
 
     fun setGame(gameId: String) {
         gameRef.child(gameId)
@@ -22,7 +21,7 @@ class GameService @Inject constructor(
 
     fun gameListener(gameId: String): Flow<GameModel?> {
         val gameDataFlow = MutableStateFlow<GameModel?>(null)
-        listener = gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
+        gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val gameModel = dataSnapshot.getValue(GameModel::class.java)
                 gameDataFlow.value = gameModel

@@ -1,5 +1,8 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -56,6 +58,9 @@ class MultiPlayerViewModel @Inject constructor(
 
     private lateinit var username: String
 
+    private val inactivityTimeout = 60000L // 60 segundos de inactividad
+    private var lastInteractionTime: Long = 0L
+
     init {
         val gameId = generateRandomString()
         repository.setGame(gameId)
@@ -63,11 +68,17 @@ class MultiPlayerViewModel @Inject constructor(
         _gameId.value = gameId
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        inactivityHandler.removeCallbacks(inactivityRunnable)
+    }
+
     fun startGameListener(gameId: String) {
         viewModelScope.launch {
             repository.gameListener(gameId).collect { gameModel ->
                 if (gameModel != null) {
                     if (!gameModel.endGame) {
+                        lastInteractionTime = System.currentTimeMillis()
                         if (gameModel.player2.isNotEmpty()) {
                             _isEnable.value = true
                             _showCode.value = false
@@ -86,9 +97,30 @@ class MultiPlayerViewModel @Inject constructor(
                             }
                         }
                     } else {
+                        if (gameModel.player2.isEmpty() || gameModel.player1Choice.isEmpty() || gameModel.player2Choice.isEmpty()) {
+                            repository.deleteGame(gameId)
+                        }
                         resetStates()
                     }
                 }
+            }
+        }
+        inactivityHandler.postDelayed(inactivityRunnable, 1000) // Comenzar la verificación después de 1 segundo
+    }
+
+    private val inactivityHandler = Handler(Looper.getMainLooper())
+    private val inactivityRunnable = object : Runnable {
+        override fun run() {
+            checkInactivityTimeout()
+            inactivityHandler.postDelayed(this, 1000) // Comprobar cada segundo
+        }
+    }
+
+    private fun checkInactivityTimeout() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastInteractionTime >= inactivityTimeout) {
+            viewModelScope.launch {
+                _gameId.value?.let { repository.endGame(it) }
             }
         }
     }
@@ -145,9 +177,8 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     fun onEndGame(gameId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.endGame(gameId)
-            resetStates()
         }
     }
 
