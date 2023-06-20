@@ -2,7 +2,6 @@ package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -59,21 +58,17 @@ class MultiPlayerViewModel @Inject constructor(
     private lateinit var username: String
 
     private val inactivityTimeout = 60000L // 60 segundos de inactividad
-    private var lastInteractionTime: Long = 0L
-    private lateinit var inactivityHandler: Handler
-    private var inactivityRunnable: Runnable
+    private val inactivityHandler = Handler(Looper.getMainLooper())
+    private val inactivityRunnable: Runnable = Runnable {
+        stopGame()
+    }
 
     init {
         val gameId = generateRandomString()
         repository.setGame(gameId)
         _player.value = 1
         _gameId.value = gameId
-        viewModelScope.launch{
-            inactivityHandler = Handler(Looper.getMainLooper())
-        }
-        inactivityRunnable = Runnable {
-            checkInactivityTimeout()
-        }
+        startHandler()
     }
 
     private fun startHandler(){
@@ -89,7 +84,6 @@ class MultiPlayerViewModel @Inject constructor(
             repository.gameListener(gameId).collect { gameModel ->
                 if (gameModel != null) {
                     if (!gameModel.endGame) {
-                        lastInteractionTime = System.currentTimeMillis()
                         stopHandler()
                         if (gameModel.player2.isNotEmpty()) {
                             _isEnable.value = true
@@ -114,16 +108,16 @@ class MultiPlayerViewModel @Inject constructor(
                             repository.deleteGame(gameId)
                         }
                         resetStates()
+                        stopHandler()
                     }
                 }
             }
         }
     }
 
-    private fun checkInactivityTimeout() {
+    private fun stopGame() {
         viewModelScope.launch(Dispatchers.IO) {
             _gameId.value?.let { repository.endGame(it) }
-            Log.i("NOE","CHECK")
         }
     }
 
