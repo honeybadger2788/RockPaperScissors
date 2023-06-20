@@ -37,4 +37,10 @@ class HomeViewModel @Inject constructor(): ViewModel() {
             _showDialog.value = false
         }
     }
+
+    fun resetStates() {
+        _username.value = ""
+        _showDialog.value = false
+        _isButtonEnable.value = false
+    }
 }
