@@ -25,6 +25,7 @@ class GameService @Inject constructor(
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val gameModel = dataSnapshot.getValue(GameModel::class.java)
                 gameDataFlow.value = gameModel
+                Log.i("NOE", "Escuchando $gameId...")
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -67,5 +68,11 @@ class GameService @Inject constructor(
     suspend fun getGame(gameId: String): Boolean {
         val response = gameRef.child(gameId).get().await()
         return response.value != null
+    }
+
+    suspend fun endGame(gameId: String) {
+        gameRef.child(gameId).updateChildren(mapOf(
+            "endGame" to true
+        )).await()
     }
 }

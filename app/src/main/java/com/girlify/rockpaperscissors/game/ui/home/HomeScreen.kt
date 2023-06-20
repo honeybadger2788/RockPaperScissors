@@ -51,7 +51,9 @@ fun HomeScreen(
         }
         if (showDialog){
             DialogUsername(
-                { navigateToMultiPlayer(it) },
+                {
+                    homeViewModel.resetStates()
+                    navigateToMultiPlayer(it) },
                 username,
                 isButtonEnable,
                 { homeViewModel.onDismiss() },
@@ -64,7 +66,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogUsername(
-    navigateToMultiPlayer: (String) -> Unit,
+    goToMultiplayer: (String) -> Unit,
     username: String,
     isButtonEnable: Boolean,
     onDismiss: () -> Unit,
@@ -88,7 +90,9 @@ fun DialogUsername(
                 maxLines = 1
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { navigateToMultiPlayer(username) }, enabled = isButtonEnable) {
+            Button(onClick = {
+                goToMultiplayer(username)
+            }, enabled = isButtonEnable) {
                 Text(text = "Enviar")
             }
         }
