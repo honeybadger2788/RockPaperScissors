@@ -157,7 +157,7 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     fun onPlay(gameId: String, player: Int, playerElection: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isEnable.value = false
             _showAnimation.value = true
             repository.makeMove(gameId, player, playerElection)
@@ -165,7 +165,7 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     fun onRestart(gameId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _result.value = ""
             _isEnable.value = true
             repository.restartGame(gameId)
