@@ -16,7 +16,7 @@ class GameService @Inject constructor(
     private val gameRef = firebaseClient.db.child("games")
 
     fun setGame(gameId: String) {
-        gameRef.child(gameId)
+        gameRef.child(gameId).setValue(GameModel())
     }
 
     fun gameListener(gameId: String): Flow<GameModel?> {
