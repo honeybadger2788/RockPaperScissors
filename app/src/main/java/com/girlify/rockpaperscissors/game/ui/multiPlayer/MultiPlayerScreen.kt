@@ -1,8 +1,6 @@
 package com.girlify.rockpaperscissors.game.ui.multiPlayer
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,30 +18,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.girlify.rockpaperscissors.game.core.model.Options
+import com.girlify.rockpaperscissors.R
 import com.girlify.rockpaperscissors.game.data.response.GameModel
 import com.girlify.rockpaperscissors.ui.composables.LoadingAnimation
 import com.girlify.rockpaperscissors.ui.composables.OptionsLayout
 import com.girlify.rockpaperscissors.ui.composables.RestartButton
 import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.girlify.rockpaperscissors.ui.composables.TextResult
 
 @Composable
-fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
+fun MultiPlayerScreen(username: String, goBack: () -> Unit, multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
     val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
@@ -64,13 +57,13 @@ fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewMod
         if (gameId.isNotEmpty()){
             multiPlayerViewModel.startGameListener(gameId)
         } else {
-            goToHome()
+            goBack()
         }
     }
 
     BackHandler {
         multiPlayerViewModel.onEndGame(gameId)
-        goToHome()
+        goBack()
     }
 
     Column(
@@ -96,7 +89,8 @@ fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewMod
                 { multiPlayerViewModel.onCheckCode(it) },
                 { multiPlayerViewModel.onSendCode(gameId, code, 2, username) },
                 isCodeButtonEnable,
-                error
+                error,
+                { goBack() }
             )
         }
 
@@ -108,7 +102,7 @@ fun MultiPlayerScreen(username: String, goToHome: () -> Unit, multiPlayerViewMod
                     { multiPlayerViewModel.onRestart(gameId) },
                     {
                         multiPlayerViewModel.onEndGame(gameId)
-                        goToHome()
+                        goBack()
                     }
                 )
             }
@@ -124,9 +118,10 @@ fun CodeDialog(
     onCheck: (String) -> Unit,
     onClick: () -> Unit,
     isEnable: Boolean,
-    error: String
+    error: String,
+    onDismiss: () -> Unit
 ) {
-    Dialog(onDismissRequest = { }) {
+    Dialog(onDismissRequest = { onDismiss() }) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -135,11 +130,11 @@ fun CodeDialog(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Dile a tu amigo que ingrese este código")
+            Text(stringResource(R.string.code_dialog_title))
             Spacer(modifier = Modifier.height(8.dp))
             Text(gameId, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("o ingresa el suyo")
+            Text(stringResource(R.string.code_dialog_subtitle))
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = code,
@@ -154,7 +149,7 @@ fun CodeDialog(
                 onClick = { onClick() },
                 enabled = isEnable
             ) {
-                Text(text = "Jugar")
+                Text(text = stringResource(R.string.play_button))
             }
         }
     }
@@ -170,15 +165,13 @@ fun ResultDialog(result: String, gameData: GameModel, restart: () -> Unit, endGa
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ResultAnimation(result = result)
-            Text("${gameData.player1}: ${gameData.player1Choice}", color = Color.White)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("${gameData.player2}: ${gameData.player2Choice}", color = Color.White)
-            Spacer(modifier = Modifier.height(16.dp))
+            TextResult(username = gameData.player1, playerElection = gameData.player1Choice)
+            TextResult(username = gameData.player2, playerElection = gameData.player2Choice)
             RestartButton {
                 restart()
             }
             Button(onClick = { endGame() }) {
-                Text(text = "Finalizar juego")
+                Text(text = stringResource(R.string.end_game_button))
             }
         }
     }

@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">RockPaperScissors</string>
+    <string name="home_title">Elige el modo de juego</string>
+    <string name="single_player_button">Single Player</string>
+    <string name="multi_player_button">Multi Player</string>
+    <string name="username_dialog_title">Ingresa nombre de jugador</string>
+    <string name="send_button">Enviar</string>
+    <string name="options_layout_title">Elegí tu jugada</string>
+    <string name="restart_button">Reiniciar</string>
+    <string name="play_button">Jugar</string>
+    <string name="end_game_button">Finalizar juego</string>
+    <string name="code_dialog_title">Dile a tu amigo que ingrese este código</string>
+    <string name="code_dialog_subtitle">o ingresa el suyo</string>
 </resources>
