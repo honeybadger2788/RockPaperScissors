@@ -10,7 +10,6 @@ import com.girlify.rockpaperscissors.game.core.model.Options
 import com.girlify.rockpaperscissors.game.data.network.GameService
 import com.girlify.rockpaperscissors.game.data.response.GameModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -116,7 +115,7 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     private fun stopGame() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _gameId.value?.let { repository.endGame(it) }
         }
     }
@@ -157,7 +156,7 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     fun onPlay(gameId: String, player: Int, playerElection: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _isEnable.value = false
             _showAnimation.value = true
             repository.makeMove(gameId, player, playerElection)
@@ -165,7 +164,7 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     fun onRestart(gameId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _result.value = ""
             _isEnable.value = true
             repository.restartGame(gameId)
@@ -173,7 +172,7 @@ class MultiPlayerViewModel @Inject constructor(
     }
 
     fun onEndGame(gameId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.endGame(gameId)
         }
     }

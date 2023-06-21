@@ -1,12 +1,14 @@
 package com.girlify.rockpaperscissors.game.data.network
 
 import android.util.Log
+import com.girlify.rockpaperscissors.R
 import com.girlify.rockpaperscissors.game.data.response.GameModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -19,46 +21,40 @@ class GameService @Inject constructor(
         gameRef.child(gameId).setValue(GameModel())
     }
 
-    fun gameListener(gameId: String): Flow<GameModel?> {
-        val gameDataFlow = MutableStateFlow<GameModel?>(null)
-        gameRef.child(gameId).addValueEventListener(object : ValueEventListener {
+    fun gameListener(gameId: String): Flow<GameModel?> = callbackFlow {
+        val valueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val gameModel = dataSnapshot.getValue(GameModel::class.java)
-                gameDataFlow.value = gameModel
-                Log.i("NOE", "Escuchando $gameId...")
+                try {
+                    trySend(gameModel).isSuccess
+                } catch (e: Exception) {
+                    Log.w(R.string.app_name.toString(), "Error offering game model", e)
+                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                Log.w("NOE", "loadPost:onCancelled", databaseError.toException())
+                Log.w(R.string.app_name.toString(), "loadPost:onCancelled", databaseError.toException())
             }
-        })
-        return gameDataFlow
+        }
+        gameRef.child(gameId).addValueEventListener(valueEventListener)
+
+        awaitClose { gameRef.child(gameId).removeEventListener(valueEventListener) }
     }
 
     suspend fun setPlayer(gameId: String, player: Int, username: String) {
-        gameRef.child(gameId).updateChildren(
-            mapOf(
-                if (player == 1) "player1" to username else "player2" to username
-            )
-        ).await()
+        val updateKey = if (player == 1) "player1" else "player2"
+        gameRef.child(gameId).child(updateKey).setValue(username).await()
     }
 
     suspend fun makeMove(gameId: String, player: Int, playerMove: String) {
-        gameRef.child(gameId).updateChildren(
-            mapOf(
-                if (player == 1) "player1Choice" to playerMove else "player2Choice" to playerMove
-            )
-        ).await()
+        val updateKey = if (player == 1) "player1Choice" else "player2Choice"
+        gameRef.child(gameId).child(updateKey).setValue(playerMove).await()
     }
 
     suspend fun restartGame(gameId: String) {
-        gameRef.child(gameId).updateChildren(
-            mapOf(
-                "player1Choice" to "",
-                "player2Choice" to ""
-            )
-        ).await()
+        gameRef.child(gameId).child("player1Choice").setValue("").await()
+        gameRef.child(gameId).child("player2Choice").setValue("").await()
     }
 
     suspend fun deleteGame(gameId: String) {
@@ -71,8 +67,6 @@ class GameService @Inject constructor(
     }
 
     suspend fun endGame(gameId: String) {
-        gameRef.child(gameId).updateChildren(mapOf(
-            "endGame" to true
-        )).await()
+        gameRef.child(gameId).child("endGame").setValue(true).await()
     }
 }
