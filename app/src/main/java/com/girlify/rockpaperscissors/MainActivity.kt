@@ -49,18 +49,14 @@ private fun MyNavigation(){
         composable(Routes.Home.route) {
             HomeScreen(
                 {
-                    navigationController.navigate(Routes.SinglePlayer.route) {
-                        popUpToId
-                    }
+                    navigationController.navigate(Routes.SinglePlayer.route)
                 },
                 {
                     navigationController.navigate(
                         Routes.MultiPlayer.createRoute(
                             username = it
                         )
-                    ) {
-                        popUpToId
-                    }
+                    )
                 }
             )
         }
@@ -77,9 +73,7 @@ private fun MyNavigation(){
         ) { backStackEntry ->
             MultiPlayerScreen(
                 backStackEntry.arguments?.getString("username") ?: "",
-                { navigationController.navigate(Routes.Home.route) {
-                    popUpToId
-                } }
+                navigationController::popBackStack
             )
         }
     }

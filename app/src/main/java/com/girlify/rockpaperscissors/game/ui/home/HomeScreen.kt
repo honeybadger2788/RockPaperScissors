@@ -19,10 +19,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.girlify.rockpaperscissors.R
 
 @Composable
 fun HomeScreen(
@@ -41,13 +42,13 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Elige el modo de juego")
+        Text(text = stringResource(R.string.home_title))
         Spacer(modifier = Modifier.size(16.dp))
         Button(onClick = { navigateToSinglePlayer() }) {
-            Text(text = "Single Player")
+            Text(text = stringResource(R.string.single_player_button))
         }
         Button(onClick = { homeViewModel.onClick() }) {
-            Text(text = "Multi Player")
+            Text(text = stringResource(R.string.multi_player_button))
         }
         if (showDialog){
             DialogUsername(
@@ -81,7 +82,7 @@ fun DialogUsername(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Ingresa nombre de jugador")
+            Text(stringResource(R.string.username_dialog_title))
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = username,
@@ -93,7 +94,7 @@ fun DialogUsername(
             Button(onClick = {
                 goToMultiplayer(username)
             }, enabled = isButtonEnable) {
-                Text(text = "Enviar")
+                Text(text = stringResource(R.string.send_button))
             }
         }
     }
