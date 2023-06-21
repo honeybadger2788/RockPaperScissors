@@ -23,7 +23,7 @@ import com.girlify.rockpaperscissors.ui.composables.ResultAnimation
 
 @Preview
 @Composable
-fun GameScreen(singlePlayerViewModel: SinglePlayerViewModel = hiltViewModel()) {
+fun SinglePlayerScreen(singlePlayerViewModel: SinglePlayerViewModel = hiltViewModel()) {
     val showLoadingAnimation: Boolean by singlePlayerViewModel.showLoadingAnimation.observeAsState(
         false
     )

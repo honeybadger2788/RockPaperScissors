@@ -17,7 +17,7 @@ import androidx.navigation.navArgument
 import com.girlify.rockpaperscissors.game.core.model.Routes
 import com.girlify.rockpaperscissors.game.ui.home.HomeScreen
 import com.girlify.rockpaperscissors.game.ui.multiPlayer.MultiPlayerScreen
-import com.girlify.rockpaperscissors.game.ui.singlePlayer.GameScreen
+import com.girlify.rockpaperscissors.game.ui.singlePlayer.SinglePlayerScreen
 import com.girlify.rockpaperscissors.ui.theme.RockPaperScissorsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -66,7 +66,7 @@ private fun MyNavigation(){
         }
 
         composable(Routes.SinglePlayer.route) {
-            GameScreen()
+            SinglePlayerScreen()
         }
 
         composable(
