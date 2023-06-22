@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.RockPaperScissors" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/purple_400</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.RockPaperScissors</item>
+    </style>
 </resources>
