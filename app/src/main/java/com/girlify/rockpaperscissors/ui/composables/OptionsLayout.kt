@@ -1,22 +1,17 @@
 package com.girlify.rockpaperscissors.ui.composables
 
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +23,7 @@ import com.girlify.rockpaperscissors.R
 import com.girlify.rockpaperscissors.game.core.model.Options
 
 @Composable
-fun OptionsLayout(isEnable: Boolean, onClick: (String) -> Unit) {
+fun OptionsLayout(onClick: (String) -> Unit) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (boxTitle,boxRock, boxPaper, boxScissors) = createRefs()
 

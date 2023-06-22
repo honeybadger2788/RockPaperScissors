@@ -26,13 +26,10 @@ class SinglePlayerViewModel @Inject constructor(): ViewModel() {
     private val _showLoadingAnimation = MutableLiveData<Boolean>()
     val showLoadingAnimation: LiveData<Boolean> = _showLoadingAnimation
 
-    private val _isEnable = MutableLiveData<Boolean>()
-    val isEnable: LiveData<Boolean> = _isEnable
 
     fun onClick(player: String) {
         viewModelScope.launch {
             _showLoadingAnimation.value = true
-            _isEnable.value = false
             delay(3000)
             _playerElection.value = player
             _showLoadingAnimation.value = false
@@ -45,7 +42,6 @@ class SinglePlayerViewModel @Inject constructor(): ViewModel() {
             _playerElection.value = ""
             _computerElection.value = ""
             _result.value = ""
-            _isEnable.value = true
         }
     }
 
