@@ -21,7 +21,6 @@ fun SinglePlayerScreen(singlePlayerViewModel: SinglePlayerViewModel = hiltViewMo
     val showLoadingAnimation: Boolean by singlePlayerViewModel.showLoadingAnimation.observeAsState(
         false
     )
-    val isEnable: Boolean by singlePlayerViewModel.isEnable.observeAsState(true)
     val playerElection: String by singlePlayerViewModel.playerElection.observeAsState("")
     val computerElection: String by singlePlayerViewModel.computerElection.observeAsState("")
     val result: String by singlePlayerViewModel.result.observeAsState("")
@@ -30,7 +29,7 @@ fun SinglePlayerScreen(singlePlayerViewModel: SinglePlayerViewModel = hiltViewMo
         LoadingAnimation()
     }
 
-    OptionsLayout(isEnable){
+    OptionsLayout{
         singlePlayerViewModel.onClick(it)
     }
 

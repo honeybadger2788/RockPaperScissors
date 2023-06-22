@@ -39,7 +39,6 @@ import com.girlify.rockpaperscissors.ui.composables.TextResult
 fun MultiPlayerScreen(username: String, goBack: () -> Unit, multiPlayerViewModel: MultiPlayerViewModel = hiltViewModel()) {
     val showAnimation: Boolean by multiPlayerViewModel.showAnimation.observeAsState(false)
     val showCode: Boolean by multiPlayerViewModel.showCode.observeAsState(true)
-    val isEnable: Boolean by multiPlayerViewModel.isEnable.observeAsState(false)
     val isCodeButtonEnable: Boolean by multiPlayerViewModel.isCodeButtonEnable.observeAsState(false)
     val result: String by multiPlayerViewModel.result.observeAsState("")
     val gameId: String by multiPlayerViewModel.gameId.observeAsState("")
@@ -78,7 +77,7 @@ fun MultiPlayerScreen(username: String, goBack: () -> Unit, multiPlayerViewModel
             LoadingAnimation()
         }
 
-        OptionsLayout(isEnable = isEnable){
+        OptionsLayout{
             multiPlayerViewModel.onPlay(gameId,player,it)
         }
 
